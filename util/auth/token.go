@@ -101,20 +101,43 @@ func ExtractToken(r *http.Request) string {
 	}
 	return ""
 }
+func IsAdmin(r *http.Request) (string, bool) {
+	scope := "su"
+	uid := ""
+	tokenString := ExtractToken(r)
+	if len(tokenString) == 0 {
+		return "", false
+	}
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("API_SECRET")), nil
+	})
+	if !claims.VerifyExpiresAt(time.Now().Unix(), false) {
+		return "", false
+	}
+	if err != nil {
+		log.Println(err)
+		return "", false
+	}
+	isExist := cekScopes(claims, scope)
+	// jika bukan admin return false
+	if !isExist {
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if ok && token.Valid {
+			uid = fmt.Sprintf("%.0f", claims["sub"])
+			return uid, false
+		}
+	}
+	// jika admin return true
+	return uid, true
+}
 
 // ExtractTokenID . . .
 func ExtractTokenID(r *http.Request) (uint32, error) {
-
 	tokenString := ExtractToken(r)
-	// if len(tokenString) == 0 {
-	// 	errMsg = "Missing authorization header"
-	// 	return &errMsg
-	// }
-	// tokens := strings.Split(tokenString, " ")
-	// if len(tokens) != 2 || tokens[0] != "Bearer" {
-	// 	errMsg = "Format is Authorization: Bearer [token]"
-	// 	return &errMsg
-	// }
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])

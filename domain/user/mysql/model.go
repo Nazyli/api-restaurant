@@ -13,8 +13,9 @@ type User struct {
 	UserHash     *string   `db:"user_hash"`
 	EmployeeID   *string   `db:"employee_id"`
 	Scope        *string   `db:"scope"`
-	CreatedBy    *string   `db:"createdBy"`
+	AppID        *int64    `db:"app_id"`
 	CreatedAt    null.Time `db:"created_at"`
+	CreatedBy    *string   `db:"created_by"`
 	UpdatedAt    null.Time `db:"updated_at"`
 	LastUpdateBy *string   `db:"last_update_by"`
 	DeletedAt    null.Time `db:"deleted_at"`

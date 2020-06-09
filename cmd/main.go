@@ -17,10 +17,11 @@ func init() {
 }
 func main() {
 	var (
-		cfg = loadConfig()
-		err error
+		cfg, err = loadConfig()
 	)
-
+	if err != nil {
+		log.Println(err)
+	}
 	db, err := conn.Init(cfg.Database)
 	if err != nil {
 		panic(err)
@@ -33,7 +34,7 @@ func main() {
 
 	service := service.New(userMysql)
 	router := mux.NewRouter()
-	api.New(cfg.CDNClaudinary, service).Register(router)
+	api.New(cfg.APP_ID, cfg.CDNClaudinary, service).Register(router)
 	log.Println("API successfully initialized")
 
 	log.Println("Webserver succesfully started")

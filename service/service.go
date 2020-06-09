@@ -20,6 +20,8 @@ func New(user _user.Repository) Service {
 }
 
 type Service interface {
-	SignIn(ctx context.Context, email, password string) (token *auth.Token, errMsg string, status int)
-	GetByID(ctx context.Context, id int64) (user *entity.User, status int)
+	SignIn(ctx context.Context, email, password string, app int64) (token *auth.Token, errMsg string, status int)
+	// User
+	GetUserByID(ctx context.Context, all bool, uid string, id int64, app int64) (user *entity.User, status int)
+	SelectUsers(ctx context.Context, all bool, uid string, app int64) (users entity.Users, status int)
 }
