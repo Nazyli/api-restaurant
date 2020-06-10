@@ -31,18 +31,20 @@ func (api *API) Login(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
 		return
 	}
-	token, errMsg, status := api.service.SignIn(r.Context(), params.Email, params.Password, api.AppID)
-	if status != http.StatusOK {
-		responses.ERROR(w, status, "Failed, "+errMsg)
+	token, status := api.service.SignIn(r.Context(), api.AppID, params.Email, params.Password)
+	if status.Code != http.StatusOK {
+		responses.ERROR(w, status.Code, "Failed", status.ErrMsg)
 		return
 	}
-	responses.JSON(w, http.StatusOK, token)
+	responses.OK(w, token)
 }
 
 func (api *API) handleGetUserById(w http.ResponseWriter, r *http.Request) {
 	var (
-		Scopes []entity.Scopes
-		uid    string
+		getParam = r.URL.Query()
+		Scopes   []entity.Scopes
+		uid      string
+		all      = false
 	)
 	params := mux.Vars(r)
 	id, err := strconv.ParseInt(params["id"], 10, 64)
@@ -53,17 +55,24 @@ func (api *API) handleGetUserById(w http.ResponseWriter, r *http.Request) {
 
 	uid, isAdmin := auth.IsAdmin(r)
 	if isAdmin {
-		uid = ""
+		allParams := getParam.Get("is_active")
+		if allParams != "" {
+			all, err = strconv.ParseBool(allParams)
+			if err != nil {
+				responses.ERROR(w, http.StatusBadRequest, "Is Active must boolean")
+				return
+			}
+		}
 	}
-	user, status := api.service.GetUserByID(r.Context(), false, uid, id, api.AppID)
-	if status != http.StatusOK {
-		responses.ERROR(w, status, "Failed Get User")
+	user, status := api.service.GetUserByID(r.Context(), api.AppID, id, all, isAdmin, uid)
+	if status.Code != http.StatusOK {
+		responses.ERROR(w, status.Code, "Failed Get User", status.ErrMsg)
 		return
 	}
 
 	// display array scope
-	if user.Scope != nil {
-		arrScope := strings.Split(*user.Scope, ",")
+	if user.Scope != "" {
+		arrScope := strings.Split(user.Scope, ",")
 		Scopes = make([]entity.Scopes, 0, len(arrScope))
 		for _, arr := range arrScope {
 			Scopes = append(Scopes, entity.Scopes{
@@ -90,30 +99,41 @@ func (api *API) handleGetUserById(w http.ResponseWriter, r *http.Request) {
 			Scope:        Scopes,
 		},
 	}
-	responses.JSON(w, http.StatusOK, res)
+	responses.OK(w, res)
 
 }
 
 func (api *API) handleSelectUsers(w http.ResponseWriter, r *http.Request) {
 	var (
-		Scopes []entity.Scopes
-		uid    string
+		getParam = r.URL.Query()
+		Scopes   []entity.Scopes
+		uid      string
+		all      = false
+		err      error
 	)
 	uid, isAdmin := auth.IsAdmin(r)
 	if isAdmin {
-		uid = ""
+		allParams := getParam.Get("is_active")
+		if allParams != "" {
+			all, err = strconv.ParseBool(allParams)
+			if err != nil {
+				responses.ERROR(w, http.StatusBadRequest, "Is Active must boolean")
+				return
+			}
+		}
 	}
-	user, status := api.service.SelectUsers(r.Context(), false, uid, api.AppID)
-	if status != http.StatusOK {
-		responses.ERROR(w, status, "Failed Get User")
+
+	user, status := api.service.SelectUsers(r.Context(), api.AppID, all, isAdmin, uid)
+	if status.Code != http.StatusOK {
+		responses.ERROR(w, status.Code, "Failed Get Users")
 		return
 	}
 
 	// display array scope
 	res := make([]DataResponse, 0, len(user))
 	for _, i := range user {
-		if i.Scope != nil {
-			arrScope := strings.Split(*i.Scope, ",")
+		if i.Scope != "" {
+			arrScope := strings.Split(i.Scope, ",")
 			Scopes = make([]entity.Scopes, 0, len(arrScope))
 			for _, arr := range arrScope {
 				Scopes = append(Scopes, entity.Scopes{
@@ -142,6 +162,158 @@ func (api *API) handleSelectUsers(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	responses.JSON(w, http.StatusOK, res)
+	responses.OK(w, res)
 
+}
+
+func (api *API) handlePostUsers(w http.ResponseWriter, r *http.Request) {
+	var (
+		params reqUser
+		Scopes []entity.Scopes
+	)
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		log.Println(err)
+		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
+		return
+	}
+	v := validator.New()
+	err = v.Struct(params)
+	if err != nil {
+		log.Println(err)
+		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
+		return
+	}
+	if params.Password == "" {
+		responses.ERROR(w, http.StatusBadRequest, "Password cannot be null")
+		return
+	}
+	uid, _ := auth.IsAdmin(r)
+	user := &entity.User{
+		Username:   params.Username,
+		Email:      params.Email,
+		Password:   params.Password,
+		EmployeeID: params.EmployeeID,
+		Scope:      params.Scope,
+	}
+	user, status := api.service.Insert(r.Context(), api.AppID, uid, user)
+	if status.Code != http.StatusOK {
+		responses.ERROR(w, status.Code, "Failed Insert User")
+		return
+	}
+	if user.Scope != "" {
+		arrScope := strings.Split(user.Scope, ",")
+		Scopes = make([]entity.Scopes, 0, len(arrScope))
+		for _, arr := range arrScope {
+			Scopes = append(Scopes, entity.Scopes{
+				RoleAcess: arr,
+			})
+		}
+	}
+	res := DataResponse{
+		ID:   user.ID,
+		Type: "User",
+		Attributes: entity.UserByScope{
+			ID:           user.ID,
+			Username:     user.Username,
+			Email:        user.Email,
+			UserHash:     user.UserHash,
+			EmployeeID:   user.EmployeeID,
+			CreatedAt:    user.CreatedAt,
+			CreatedBy:    user.CreatedBy,
+			UpdatedAt:    user.UpdatedAt,
+			LastUpdateBy: user.LastUpdateBy,
+			DeletedAt:    user.DeletedAt,
+			IsActive:     user.IsActive,
+			AppID:        user.AppID,
+			Scope:        Scopes,
+		},
+	}
+	responses.OK(w, res)
+
+}
+
+func (api *API) handlePatchUsers(w http.ResponseWriter, r *http.Request) {
+	var (
+		params reqUser
+		Scopes []entity.Scopes
+	)
+	paramsID := mux.Vars(r)
+	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, "ID must Integer")
+		return
+	}
+	err = json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		log.Println(err)
+		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
+		return
+	}
+	v := validator.New()
+	err = v.Struct(params)
+	if err != nil {
+		log.Println(err)
+		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
+		return
+	}
+
+	uid, isAdmin := auth.IsAdmin(r)
+	user := &entity.User{
+		Username:   params.Username,
+		Email:      params.Email,
+		EmployeeID: params.EmployeeID,
+		Scope:      params.Scope,
+	}
+	user, status := api.service.Update(r.Context(), api.AppID, id, isAdmin, uid, user)
+	if status.Code != http.StatusOK {
+		responses.ERROR(w, status.Code, "Failed Update User", status.ErrMsg)
+		return
+	}
+	if user.Scope != "" {
+		arrScope := strings.Split(user.Scope, ",")
+		Scopes = make([]entity.Scopes, 0, len(arrScope))
+		for _, arr := range arrScope {
+			Scopes = append(Scopes, entity.Scopes{
+				RoleAcess: arr,
+			})
+		}
+	}
+	res := DataResponse{
+		ID:   user.ID,
+		Type: "User",
+		Attributes: entity.UserByScope{
+			ID:           user.ID,
+			Username:     user.Username,
+			Email:        user.Email,
+			UserHash:     user.UserHash,
+			EmployeeID:   user.EmployeeID,
+			CreatedAt:    user.CreatedAt,
+			CreatedBy:    user.CreatedBy,
+			UpdatedAt:    user.UpdatedAt,
+			LastUpdateBy: user.LastUpdateBy,
+			DeletedAt:    user.DeletedAt,
+			IsActive:     user.IsActive,
+			AppID:        user.AppID,
+			Scope:        Scopes,
+		},
+	}
+	responses.OK(w, res)
+
+}
+
+func (api *API) handleDeleteUsers(w http.ResponseWriter, r *http.Request) {
+	paramsID := mux.Vars(r)
+	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, "ID must Integer")
+		return
+	}
+	uid, isAdmin := auth.IsAdmin(r)
+	status := api.service.Delete(r.Context(), api.AppID, id, isAdmin, uid)
+	if status.Code != http.StatusOK {
+		responses.ERROR(w, status.Code, "Failed Delete User", status.ErrMsg)
+		return
+	}
+	responses.OK(w, "OK")
 }

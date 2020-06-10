@@ -25,12 +25,13 @@ func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 }
 
 // ERROR . . .
-func ERROR(w http.ResponseWriter, statusCode int, err string) {
+func ERROR(w http.ResponseWriter, statusCode int, err ...string) {
 	if statusCode != http.StatusOK {
 		statusText := http.StatusText(statusCode)
+
 		res := Error{
 			Error: ErrorMsg{
-				Message: err,
+				Message: MessageError(statusCode, err...),
 				Code:    statusCode,
 				Title:   statusText,
 			},
@@ -39,4 +40,22 @@ func ERROR(w http.ResponseWriter, statusCode int, err string) {
 		return
 	}
 	JSON(w, statusCode, nil)
+}
+
+func OK(w http.ResponseWriter, data interface{}) {
+	JSON(w, http.StatusOK, data)
+}
+
+func MessageError(code int, err ...string) string {
+	if len(err) == 1 {
+		return err[0]
+	}
+	switch code {
+	case http.StatusNotFound:
+		return err[0] + ", " + err[1] + " Data Not Found"
+	case http.StatusInternalServerError:
+		return err[0] + ", Unsuccessful Commuicating " + err[1] + " Data With Repository"
+	default:
+		return err[0] + ", " + err[1]
+	}
 }

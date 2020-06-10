@@ -33,6 +33,9 @@ func (api *API) Register(r *mux.Router) {
 	r.HandleFunc("/login", middlewares.SetMiddlewareJSON(api.Login)).Methods("POST")
 	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handleGetUserById, "read:user")).Methods("GET")
 	r.HandleFunc("/user", middlewares.SetMiddlewareAuthentication(api.handleSelectUsers, "read:user")).Methods("GET")
+	r.HandleFunc("/user", middlewares.SetMiddlewareAuthentication(api.handlePostUsers, "create:user")).Methods("POST")
+	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchUsers, "create:user")).Methods("PATCH")
+	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteUsers, "create:user")).Methods("DELETE")
 }
 
 func (api *API) handleGetPing(w http.ResponseWriter, r *http.Request) {

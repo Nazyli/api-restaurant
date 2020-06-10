@@ -8,6 +8,12 @@ import (
 	"github.com/nazyli/api-restaurant/util/auth"
 )
 
+//DataResponse json
+
+type Status struct {
+	Code   int
+	ErrMsg string
+}
 type svc struct {
 	user _user.Repository
 }
@@ -20,8 +26,11 @@ func New(user _user.Repository) Service {
 }
 
 type Service interface {
-	SignIn(ctx context.Context, email, password string, app int64) (token *auth.Token, errMsg string, status int)
+	SignIn(ctx context.Context, app int64, email, password string) (token *auth.Token, status Status)
 	// User
-	GetUserByID(ctx context.Context, all bool, uid string, id int64, app int64) (user *entity.User, status int)
-	SelectUsers(ctx context.Context, all bool, uid string, app int64) (users entity.Users, status int)
+	GetUserByID(ctx context.Context, app int64, id int64, all bool, isAdmin bool, uid string) (user *entity.User, status Status)
+	SelectUsers(ctx context.Context, app int64, all bool, isAdmin bool, uid string) (users entity.Users, status Status)
+	Insert(ctx context.Context, app int64, uid string, user *entity.User) (userData *entity.User, status Status)
+	Update(ctx context.Context, app int64, id int64, isAdmin bool, uid string, user *entity.User) (userData *entity.User, status Status)
+	Delete(ctx context.Context, app int64, id int64, isAdmin bool, uid string) (status Status)
 }

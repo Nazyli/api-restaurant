@@ -14,14 +14,14 @@ import (
 )
 
 // CreateToken . . .
-func CreateToken(userID int64, scopes *string) (token *Token, err error) {
+func CreateToken(uid string, scopes *string) (token *Token, err error) {
 	// duration set 3600 seconds
 	duration := (time.Hour * 1).Seconds()
 
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["scope"] = scopes
-	claims["sub"] = userID
+	claims["sub"] = uid
 	claims["iat"] = time.Now().Unix()                    //Token create
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix() //Token expires after 1 hour
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -122,14 +122,14 @@ func IsAdmin(r *http.Request) (string, bool) {
 		log.Println(err)
 		return "", false
 	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		uid = fmt.Sprintf("%s", claims["sub"])
+	}
 	isExist := cekScopes(claims, scope)
 	// jika bukan admin return false
 	if !isExist {
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if ok && token.Valid {
-			uid = fmt.Sprintf("%.0f", claims["sub"])
-			return uid, false
-		}
+		return uid, false
 	}
 	// jika admin return true
 	return uid, true

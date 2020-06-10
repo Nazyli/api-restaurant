@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"context"
-	"log"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/nazyli/api-restaurant/entity"
@@ -19,7 +19,7 @@ func New(db *sqlx.DB) *MySQL {
 }
 
 // GetByEmail . . .
-func (m *MySQL) GetByEmail(ctx context.Context, email string, app int64) (user *entity.User, err error) {
+func (m *MySQL) GetByEmail(ctx context.Context, app int64, email string) (user *entity.User, err error) {
 	var u User
 	query := `
 	SELECT
@@ -39,7 +39,6 @@ func (m *MySQL) GetByEmail(ctx context.Context, email string, app int64) (user *
 		`
 	err = m.db.GetContext(ctx, &u, query, email, app)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	user = &entity.User{
@@ -56,8 +55,8 @@ func (m *MySQL) GetByEmail(ctx context.Context, email string, app int64) (user *
 	return user, nil
 }
 
-// GetByEmail . . .
-func (m *MySQL) GetByID(ctx context.Context, all bool, uid string, id int64, app int64) (user *entity.User, err error) {
+// GetByID . . .
+func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAdmin bool, uid string) (user *entity.User, err error) {
 	var (
 		u    User
 		args []interface{}
@@ -87,14 +86,13 @@ func (m *MySQL) GetByID(ctx context.Context, all bool, uid string, id int64, app
 	if !all {
 		query += " AND is_active = 1"
 	}
-	if uid != "" {
+	if !isAdmin {
 		query += " AND created_by = ?"
 		args = append(args, uid)
 
 	}
 	err = m.db.GetContext(ctx, &u, query, args...)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	user = &entity.User{
@@ -114,7 +112,9 @@ func (m *MySQL) GetByID(ctx context.Context, all bool, uid string, id int64, app
 	}
 	return user, nil
 }
-func (m *MySQL) Select(ctx context.Context, all bool, uid string, app int64) (users entity.Users, err error) {
+
+// Select . . .
+func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, uid string) (users entity.Users, err error) {
 	var (
 		u    Users
 		args []interface{}
@@ -143,14 +143,13 @@ func (m *MySQL) Select(ctx context.Context, all bool, uid string, app int64) (us
 	if !all {
 		query += " AND is_active = 1"
 	}
-	if uid != "" {
+	if !isAdmin {
 		query += " AND created_by = ?"
 		args = append(args, uid)
 
 	}
 	err = m.db.SelectContext(ctx, &u, query, args...)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	for _, i := range u {
@@ -171,4 +170,133 @@ func (m *MySQL) Select(ctx context.Context, all bool, uid string, app int64) (us
 		})
 	}
 	return users, nil
+}
+
+func (m *MySQL) Insert(ctx context.Context, uid string, user *entity.User) (err error) {
+	query := `
+	INSERT INTO user
+		(
+			username,
+			email,
+			password,
+			user_hash,
+			employee_id,
+			scope,
+			app_id,
+			created_at,
+			created_by,
+			is_active
+		) 
+		VALUES 
+		(
+			:username,
+			:email,
+			:password,
+			:user_hash,
+			:employee_id,
+			:scope,
+			:app_id,
+			:created_at,
+			:created_by,
+			:is_active
+		);
+	`
+	res, err := m.db.NamedExecContext(ctx, query, &User{
+		Username:   user.Username,
+		Email:      user.Email,
+		Password:   user.Password,
+		UserHash:   user.UserHash,
+		EmployeeID: user.EmployeeID,
+		Scope:      user.Scope,
+		AppID:      user.AppID,
+		CreatedAt:  user.CreatedAt,
+		CreatedBy:  user.CreatedBy,
+		IsActive:   user.IsActive,
+	})
+	if err != nil {
+		return err
+	}
+	user.ID, err = res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
+	query := `
+	UPDATE 
+		user
+	SET
+		username =:username,
+		email =:email,
+		employee_id =:employee_id,
+		scope =:scope,
+		app_id =:app_id,
+		updated_at =:updated_at,
+		last_update_by =:last_update_by
+	WHERE 
+		id = :id AND
+		is_active = 1 AND
+		app_id = :app_id
+	`
+	if !isAdmin {
+		query += " AND created_by = :created_by"
+
+	}
+	res, err := m.db.NamedExecContext(ctx, query, &User{
+		ID:           user.ID,
+		Username:     user.Username,
+		Email:        user.Email,
+		EmployeeID:   user.EmployeeID,
+		Scope:        user.Scope,
+		AppID:        user.AppID,
+		CreatedBy:    user.CreatedBy,
+		UpdatedAt:    user.UpdatedAt,
+		LastUpdateBy: user.LastUpdateBy,
+		IsActive:     user.IsActive,
+	})
+	if err != nil {
+		return err
+	}
+	num, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if num == 0 {
+		return sql.ErrNoRows
+	}
+	return err
+}
+
+func (m *MySQL) Delete(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
+	query := `
+	UPDATE
+		user
+	SET
+		is_active = 0,
+		deleted_at = :deleted_at,
+		last_update_by = :last_update_by
+	WHERE
+		id = :id AND
+		app_id = :app_id`
+
+	if !isAdmin {
+		query += " AND created_by = :created_by"
+	}
+	res, err := m.db.NamedExecContext(ctx, query, &User{
+		ID:           user.ID,
+		AppID:        user.AppID,
+		DeletedAt:    user.DeletedAt,
+		LastUpdateBy: user.LastUpdateBy,
+		CreatedBy:    user.CreatedBy,
+	})
+	if err != nil {
+		return err
+	}
+	num, err := res.RowsAffected()
+	if num == 0 {
+		return sql.ErrNoRows
+	}
+	return err
 }
