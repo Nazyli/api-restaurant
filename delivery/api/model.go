@@ -34,3 +34,9 @@ type reqMenu struct {
 	Price      float64  `json:"price" validate:"required"`
 	Discount   *float64 `json:"disc"`
 }
+
+type reqCustomer struct {
+	Name    string  `json:"name" validate:"required"`
+	Email   *string `json:"email" validate:"email"`
+	Addreas *string `json:"addreas"`
+}

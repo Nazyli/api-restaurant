@@ -32,9 +32,10 @@ func (s *svc) GetMenuByID(ctx context.Context, id int64, all bool, isAdmin bool,
 	}
 	return menu, Status{http.StatusOK, ""}
 }
-func (s *svc) InsertMenu(ctx context.Context, menu *entity.Menu) (menuData *entity.Menu, status Status) {
+func (s *svc) InsertMenu(ctx context.Context, uid string, menu *entity.Menu) (menuData *entity.Menu, status Status) {
 	// Add
 	menu.CreatedAt = null.TimeFrom(time.Now())
+	menu.CreatedBy = uid
 	menu.IsActive = 1
 	menu.AppID = s.AppID
 	menu.Discount = nil
@@ -58,6 +59,7 @@ func (s *svc) UpdateMenu(ctx context.Context, isAdmin bool, uid string, menu *en
 	menu.CreatedBy = getMenu.CreatedBy
 	menu.ShowMenu = getMenu.ShowMenu
 	menu.Discount = nil
+	menu.LastUpdateBy = &uid
 	err := s.menu.Update(ctx, isAdmin, menu)
 	if err != nil {
 		log.Println(err)

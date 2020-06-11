@@ -6,8 +6,8 @@ import null "gopkg.in/guregu/null.v3"
 type Customer struct {
 	ID           int64     `json:"id"`
 	Name         string    `json:"name"`
-	Email        string    `json:"email"`
-	Addreas      string    `json:"addreas"`
+	Email        *string   `json:"email"`
+	Addreas      *string   `json:"addreas"`
 	AppID        int64     `json:"app_id"`
 	CreatedAt    null.Time `json:"created_at,omitempty"`
 	CreatedBy    string    `json:"created_by,omitempty"`

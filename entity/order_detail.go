@@ -5,7 +5,7 @@ import null "gopkg.in/guregu/null.v3"
 // OrderDetail struct
 type OrderDetail struct {
 	ID           int64     `json:"id"`
-	InvoiceNum   int64     `json:"invoice_num"`
+	InvoiceNum   string    `json:"invoice_num"`
 	MenuID       int64     `json:"menu_id"`
 	Amount       string    `json:"amount"`
 	Price        float64   `json:"price"`

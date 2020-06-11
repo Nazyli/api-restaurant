@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleSelectCustomeres(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -32,25 +32,23 @@ func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	menu, status := api.service.SelectMenues(r.Context(), all, isAdmin, uid)
+	customer, status := api.service.SelectCustomers(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
-		responses.ERROR(w, status.Code, "Failed Get Menus")
+		responses.ERROR(w, status.Code, "Failed Get Customers")
 		return
 	}
 
 	// display array scope
-	res := make([]DataResponse, 0, len(menu))
-	for _, i := range menu {
+	res := make([]DataResponse, 0, len(customer))
+	for _, i := range customer {
 		res = append(res, DataResponse{
 			ID:   i.ID,
-			Type: "Menu",
-			Attributes: entity.Menu{
+			Type: "Customer",
+			Attributes: entity.Customer{
 				ID:           i.ID,
-				CategoryID:   i.CategoryID,
 				Name:         i.Name,
-				Price:        i.Price,
-				Discount:     i.Discount,
-				ShowMenu:     i.ShowMenu,
+				Email:        i.Email,
+				Addreas:      i.Addreas,
 				AppID:        i.AppID,
 				CreatedAt:    i.CreatedAt,
 				CreatedBy:    i.CreatedBy,
@@ -64,7 +62,7 @@ func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetMenuById(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleGetCustomerById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -88,36 +86,34 @@ func (api *API) handleGetMenuById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	menu, status := api.service.GetMenuByID(r.Context(), id, all, isAdmin, uid)
+	customer, status := api.service.GetCustomerByID(r.Context(), id, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
-		responses.ERROR(w, status.Code, "Failed Get Menu", status.ErrMsg)
+		responses.ERROR(w, status.Code, "Failed Get Customer", status.ErrMsg)
 		return
 	}
 	res := DataResponse{
-		ID:   menu.ID,
-		Type: "Menu",
-		Attributes: entity.Menu{
-			ID:           menu.ID,
-			CategoryID:   menu.CategoryID,
-			Name:         menu.Name,
-			Price:        menu.Price,
-			Discount:     menu.Discount,
-			ShowMenu:     menu.ShowMenu,
-			AppID:        menu.AppID,
-			CreatedAt:    menu.CreatedAt,
-			CreatedBy:    menu.CreatedBy,
-			UpdatedAt:    menu.UpdatedAt,
-			LastUpdateBy: menu.LastUpdateBy,
-			DeletedAt:    menu.DeletedAt,
-			IsActive:     menu.IsActive,
+		ID:   customer.ID,
+		Type: "Customer",
+		Attributes: entity.Customer{
+			ID:           customer.ID,
+			Name:         customer.Name,
+			Email:        customer.Email,
+			Addreas:      customer.Addreas,
+			AppID:        customer.AppID,
+			CreatedAt:    customer.CreatedAt,
+			CreatedBy:    customer.CreatedBy,
+			UpdatedAt:    customer.UpdatedAt,
+			LastUpdateBy: customer.LastUpdateBy,
+			DeletedAt:    customer.DeletedAt,
+			IsActive:     customer.IsActive,
 		},
 	}
 	responses.OK(w, res)
 }
 
-func (api *API) handlePostMenus(w http.ResponseWriter, r *http.Request) {
+func (api *API) handlePostCustomers(w http.ResponseWriter, r *http.Request) {
 	var (
-		params reqMenu
+		params reqCustomer
 	)
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
@@ -133,43 +129,40 @@ func (api *API) handlePostMenus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, _ := auth.IsAdmin(r)
-	menu := &entity.Menu{
-		CategoryID: params.CategoryID,
-		Name:       params.Name,
-		Price:      params.Price,
-		Discount:   params.Discount,
+	customer := &entity.Customer{
+		Name:    params.Name,
+		Email:   params.Email,
+		Addreas: params.Addreas,
 	}
-	menu, status := api.service.InsertMenu(r.Context(), uid, menu)
+	customer, status := api.service.InsertCustomer(r.Context(), uid, customer)
 	if status.Code != http.StatusOK {
-		responses.ERROR(w, status.Code, "Failed Insert Menu", status.ErrMsg)
+		responses.ERROR(w, status.Code, "Failed Insert Customer", status.ErrMsg)
 		return
 	}
 	res := DataResponse{
-		ID:   menu.ID,
-		Type: "Menu",
-		Attributes: entity.Menu{
-			ID:           menu.ID,
-			CategoryID:   menu.CategoryID,
-			Name:         menu.Name,
-			Price:        menu.Price,
-			Discount:     menu.Discount,
-			ShowMenu:     menu.ShowMenu,
-			AppID:        menu.AppID,
-			CreatedAt:    menu.CreatedAt,
-			CreatedBy:    menu.CreatedBy,
-			UpdatedAt:    menu.UpdatedAt,
-			LastUpdateBy: menu.LastUpdateBy,
-			DeletedAt:    menu.DeletedAt,
-			IsActive:     menu.IsActive,
+		ID:   customer.ID,
+		Type: "Customer",
+		Attributes: entity.Customer{
+			ID:           customer.ID,
+			Name:         customer.Name,
+			Email:        customer.Email,
+			Addreas:      customer.Addreas,
+			AppID:        customer.AppID,
+			CreatedAt:    customer.CreatedAt,
+			CreatedBy:    customer.CreatedBy,
+			UpdatedAt:    customer.UpdatedAt,
+			LastUpdateBy: customer.LastUpdateBy,
+			DeletedAt:    customer.DeletedAt,
+			IsActive:     customer.IsActive,
 		},
 	}
 	responses.OK(w, res)
 
 }
 
-func (api *API) handlePatchMenu(w http.ResponseWriter, r *http.Request) {
+func (api *API) handlePatchCustomer(w http.ResponseWriter, r *http.Request) {
 	var (
-		params reqMenu
+		params reqCustomer
 	)
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
@@ -191,41 +184,38 @@ func (api *API) handlePatchMenu(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, isAdmin := auth.IsAdmin(r)
-	menu := &entity.Menu{
-		ID:         id,
-		CategoryID: params.CategoryID,
-		Name:       params.Name,
-		Price:      params.Price,
-		Discount:   params.Discount,
+	customer := &entity.Customer{
+		ID:      id,
+		Name:    params.Name,
+		Email:   params.Email,
+		Addreas: params.Addreas,
 	}
-	menu, status := api.service.UpdateMenu(r.Context(), isAdmin, uid, menu)
+	customer, status := api.service.UpdateCustomer(r.Context(), isAdmin, uid, customer)
 	if status.Code != http.StatusOK {
-		responses.ERROR(w, status.Code, "Failed Update Menu", status.ErrMsg)
+		responses.ERROR(w, status.Code, "Failed Update Customer", status.ErrMsg)
 		return
 	}
 	res := DataResponse{
-		ID:   menu.ID,
-		Type: "Menu",
-		Attributes: entity.Menu{
-			ID:           menu.ID,
-			CategoryID:   menu.CategoryID,
-			Name:         menu.Name,
-			Price:        menu.Price,
-			Discount:     menu.Discount,
-			ShowMenu:     menu.ShowMenu,
-			AppID:        menu.AppID,
-			CreatedAt:    menu.CreatedAt,
-			CreatedBy:    menu.CreatedBy,
-			UpdatedAt:    menu.UpdatedAt,
-			LastUpdateBy: menu.LastUpdateBy,
-			DeletedAt:    menu.DeletedAt,
-			IsActive:     menu.IsActive,
+		ID:   customer.ID,
+		Type: "Customer",
+		Attributes: entity.Customer{
+			ID:           customer.ID,
+			Name:         customer.Name,
+			Email:        customer.Email,
+			Addreas:      customer.Addreas,
+			AppID:        customer.AppID,
+			CreatedAt:    customer.CreatedAt,
+			CreatedBy:    customer.CreatedBy,
+			UpdatedAt:    customer.UpdatedAt,
+			LastUpdateBy: customer.LastUpdateBy,
+			DeletedAt:    customer.DeletedAt,
+			IsActive:     customer.IsActive,
 		},
 	}
 	responses.OK(w, res)
 
 }
-func (api *API) handleDeleteMenu(w http.ResponseWriter, r *http.Request) {
+func (api *API) handleDeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
@@ -233,7 +223,7 @@ func (api *API) handleDeleteMenu(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, isAdmin := auth.IsAdmin(r)
-	status := api.service.DeleteMenu(r.Context(), id, isAdmin, uid)
+	status := api.service.DeleteCustomer(r.Context(), id, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete User", status.ErrMsg)
 		return

@@ -195,9 +195,8 @@ func (api *API) handlePostUsers(w http.ResponseWriter, r *http.Request) {
 		Password:   params.Password,
 		EmployeeID: params.EmployeeID,
 		Scope:      params.Scope,
-		CreatedBy:  uid,
 	}
-	user, status := api.service.InsertUser(r.Context(), user)
+	user, status := api.service.InsertUser(r.Context(), uid, user)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert User", status.ErrMsg)
 		return

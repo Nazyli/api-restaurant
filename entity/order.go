@@ -5,7 +5,7 @@ import null "gopkg.in/guregu/null.v3"
 // Order struct
 type Order struct {
 	ID            int64     `json:"id"`
-	InvoiceNum    int64     `json:"invoice_num"`
+	InvoiceNum    string    `json:"invoice_num"`
 	SaleDate      null.Time `json:"sale_date"`
 	SaleTime      null.Time `json:"sale_time"`
 	SubTotal      float64   `json:"sub_total"`

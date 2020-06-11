@@ -58,7 +58,7 @@ func (s *svc) SelectUsers(ctx context.Context, all bool, isAdmin bool, uid strin
 	}
 	return user, Status{http.StatusOK, ""}
 }
-func (s *svc) InsertUser(ctx context.Context, user *entity.User) (userData *entity.User, status Status) {
+func (s *svc) InsertUser(ctx context.Context, uid string, user *entity.User) (userData *entity.User, status Status) {
 	var (
 		hashUser = HashSHA1(user.Username)
 	)
@@ -72,6 +72,7 @@ func (s *svc) InsertUser(ctx context.Context, user *entity.User) (userData *enti
 	// Add
 	user.Password = password
 	user.CreatedAt = null.TimeFrom(time.Now())
+	user.CreatedBy = uid
 	user.UserHash = hashUser
 	user.IsActive = 1
 	user.AppID = s.AppID
