@@ -12,7 +12,7 @@ import (
 	"github.com/nazyli/api-restaurant/entity"
 	"github.com/nazyli/api-restaurant/util/auth"
 	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/guregu/null.v3"
+	null "gopkg.in/guregu/null.v3"
 )
 
 func (s *svc) SignIn(ctx context.Context, email, password string) (token *auth.Token, status Status) {

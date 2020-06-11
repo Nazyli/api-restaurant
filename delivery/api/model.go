@@ -23,3 +23,7 @@ type reqUser struct {
 type reqPosition struct {
 	PositionName string `json:"position_name" validate:"required"`
 }
+
+type reqCategory struct {
+	CategoryName string `json:"category_name" validate:"required"`
+}

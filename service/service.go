@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	_category "github.com/nazyli/api-restaurant/domain/category"
 	_position "github.com/nazyli/api-restaurant/domain/position"
 	_user "github.com/nazyli/api-restaurant/domain/user"
 	"github.com/nazyli/api-restaurant/entity"
@@ -19,14 +20,16 @@ type svc struct {
 	AppID    int64
 	user     _user.Repository
 	position _position.Repository
+	category _category.Repository
 }
 
 // New init service
-func New(AppID int64, user _user.Repository, position _position.Repository) Service {
+func New(AppID int64, user _user.Repository, position _position.Repository, category _category.Repository) Service {
 	return &svc{
 		AppID:    AppID,
 		user:     user,
 		position: position,
+		category: category,
 	}
 }
 
@@ -45,4 +48,11 @@ type Service interface {
 	InsertPosition(ctx context.Context, position *entity.Position) (positionData *entity.Position, status Status)
 	UpdatePosition(ctx context.Context, position *entity.Position) (positionData *entity.Position, status Status)
 	DeletePosition(ctx context.Context, position *entity.Position) (status Status)
+
+	//Category
+	SelectCategory(ctx context.Context, all bool) (categorys entity.Categorys, status Status)
+	GetCategoryByID(ctx context.Context, id int64, all bool) (category *entity.Category, status Status)
+	InsertCategory(ctx context.Context, category *entity.Category) (categoryData *entity.Category, status Status)
+	UpdateCategory(ctx context.Context, category *entity.Category) (categoryData *entity.Category, status Status)
+	DeleteCategory(ctx context.Context, category *entity.Category) (status Status)
 }
