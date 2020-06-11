@@ -19,7 +19,7 @@ type Order struct {
 	EmployeeID    int8      `json:"employee_id"`
 	AppID         int64     `json:"app_id"`
 	CreatedAt     null.Time `json:"created_at,omitempty"`
-	CreatedBy     string    `json:"created_By,omitempty"`
+	CreatedBy     string    `json:"created_by,omitempty"`
 	UpdatedAt     null.Time `json:"updated_at,omitempty"`
 	LastUpdateBy  *string   `json:"last_update_by,omitempty"`
 	DeletedAt     null.Time `json:"deleted_at,omitempty"`

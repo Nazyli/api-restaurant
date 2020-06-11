@@ -4,6 +4,7 @@ import (
 	"context"
 
 	_category "github.com/nazyli/api-restaurant/domain/category"
+	_menu "github.com/nazyli/api-restaurant/domain/menu"
 	_position "github.com/nazyli/api-restaurant/domain/position"
 	_user "github.com/nazyli/api-restaurant/domain/user"
 	"github.com/nazyli/api-restaurant/entity"
@@ -21,15 +22,17 @@ type svc struct {
 	user     _user.Repository
 	position _position.Repository
 	category _category.Repository
+	menu     _menu.Repository
 }
 
 // New init service
-func New(AppID int64, user _user.Repository, position _position.Repository, category _category.Repository) Service {
+func New(AppID int64, user _user.Repository, position _position.Repository, category _category.Repository, menu _menu.Repository) Service {
 	return &svc{
 		AppID:    AppID,
 		user:     user,
 		position: position,
 		category: category,
+		menu:     menu,
 	}
 }
 
@@ -55,4 +58,11 @@ type Service interface {
 	InsertCategory(ctx context.Context, category *entity.Category) (categoryData *entity.Category, status Status)
 	UpdateCategory(ctx context.Context, category *entity.Category) (categoryData *entity.Category, status Status)
 	DeleteCategory(ctx context.Context, category *entity.Category) (status Status)
+
+	//Menu
+	GetMenuByID(ctx context.Context, id int64, all bool, isAdmin bool, uid string) (menu *entity.Menu, status Status)
+	SelectMenues(ctx context.Context, all bool, isAdmin bool, uid string) (menues entity.Menues, status Status)
+	InsertMenu(ctx context.Context, menu *entity.Menu) (menuData *entity.Menu, status Status)
+	UpdateMenu(ctx context.Context, isAdmin bool, uid string, menu *entity.Menu) (menuData *entity.Menu, status Status)
+	DeleteMenu(ctx context.Context, id int64, isAdmin bool, uid string) (status Status)
 }

@@ -27,3 +27,10 @@ type reqPosition struct {
 type reqCategory struct {
 	CategoryName string `json:"category_name" validate:"required"`
 }
+
+type reqMenu struct {
+	CategoryID int64    `json:"category_id" validate:"required"`
+	Name       string   `json:"name" validate:"required"`
+	Price      float64  `json:"price" validate:"required"`
+	Discount   *float64 `json:"disc"`
+}

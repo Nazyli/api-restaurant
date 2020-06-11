@@ -50,6 +50,13 @@ func (api *API) Register(r *mux.Router) {
 	r.HandleFunc("/category/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchCategorys, "update:category")).Methods("PATCH")
 	r.HandleFunc("/category/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteCategorys, "delete:category")).Methods("DELETE")
 
+	// Menu
+	r.HandleFunc("/menu", middlewares.SetMiddlewareAuthentication(api.handleSelectMenues, "read:menu")).Methods("GET")
+	r.HandleFunc("/menu/{id}", middlewares.SetMiddlewareAuthentication(api.handleGetMenuById, "read:menu")).Methods("GET")
+	r.HandleFunc("/menu", middlewares.SetMiddlewareAuthentication(api.handlePostMenus, "create:menu")).Methods("POST")
+	r.HandleFunc("/menu/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchMenu, "update:menu")).Methods("PATCH")
+	r.HandleFunc("/menu/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteMenu, "delete:menu")).Methods("DELETE")
+
 }
 
 func (api *API) handleGetPing(w http.ResponseWriter, r *http.Request) {

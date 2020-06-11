@@ -13,6 +13,7 @@ require (
 	github.com/lib/pq v1.1.1 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
+	google.golang.org/grpc v1.29.1 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/guregu/null.v3 v3.5.0
