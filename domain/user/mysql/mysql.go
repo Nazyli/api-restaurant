@@ -280,6 +280,7 @@ func (m *MySQL) Delete(ctx context.Context, isAdmin bool, user *entity.User) (er
 		last_update_by = :last_update_by
 	WHERE
 		id = :id AND
+		is_active = 1 AND
 		app_id = :app_id`
 
 	if !isAdmin {

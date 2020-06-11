@@ -5,7 +5,7 @@ import null "gopkg.in/guregu/null.v3"
 // Employee struct
 type Employee struct {
 	ID         int64 `json:"id"`
-	PositionID int64 `json:"category_id"`
+	PositionID int64 `json:"position_id"`
 
 	Name         string     `json:"name"`
 	DateOfBirth  *null.Time `json:"date_of_birth"`

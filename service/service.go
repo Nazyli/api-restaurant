@@ -5,6 +5,7 @@ import (
 
 	_category "github.com/nazyli/api-restaurant/domain/category"
 	_customer "github.com/nazyli/api-restaurant/domain/customer"
+	_employee "github.com/nazyli/api-restaurant/domain/employee"
 	_menu "github.com/nazyli/api-restaurant/domain/menu"
 	_position "github.com/nazyli/api-restaurant/domain/position"
 	_user "github.com/nazyli/api-restaurant/domain/user"
@@ -25,10 +26,11 @@ type svc struct {
 	category _category.Repository
 	menu     _menu.Repository
 	customer _customer.Repository
+	employee _employee.Repository
 }
 
 // New init service
-func New(AppID int64, user _user.Repository, position _position.Repository, category _category.Repository, menu _menu.Repository, customer _customer.Repository) Service {
+func New(AppID int64, user _user.Repository, position _position.Repository, category _category.Repository, menu _menu.Repository, customer _customer.Repository, employee _employee.Repository) Service {
 	return &svc{
 		AppID:    AppID,
 		user:     user,
@@ -36,6 +38,7 @@ func New(AppID int64, user _user.Repository, position _position.Repository, cate
 		category: category,
 		menu:     menu,
 		customer: customer,
+		employee: employee,
 	}
 }
 
@@ -75,4 +78,11 @@ type Service interface {
 	InsertCustomer(ctx context.Context, uid string, customer *entity.Customer) (customerData *entity.Customer, status Status)
 	UpdateCustomer(ctx context.Context, isAdmin bool, uid string, customer *entity.Customer) (customerData *entity.Customer, status Status)
 	DeleteCustomer(ctx context.Context, id int64, isAdmin bool, uid string) (status Status)
+
+	// Employee
+	GetEmployeeByID(ctx context.Context, id int64, all bool, isAdmin bool, uid string) (employee *entity.Employee, status Status)
+	SelectEmployees(ctx context.Context, all bool, isAdmin bool, uid string) (employees entity.Employees, status Status)
+	InsertEmployee(ctx context.Context, uid string, employee *entity.Employee) (employeeData *entity.Employee, status Status)
+	UpdateEmployee(ctx context.Context, isAdmin bool, uid string, employee *entity.Employee) (employeeData *entity.Employee, status Status)
+	DeleteEmployee(ctx context.Context, id int64, isAdmin bool, uid string) (status Status)
 }

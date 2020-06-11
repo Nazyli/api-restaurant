@@ -248,7 +248,7 @@ func (m *MySQL) Delete(ctx context.Context, isAdmin bool, menu *entity.Menu) (er
 		last_update_by = :last_update_by
 	WHERE
 		id = :id AND
-		app_id = :app_id`
+		app_id = :app_id AND is_active = 1`
 
 	if !isAdmin {
 		query += " AND created_by = :created_by"

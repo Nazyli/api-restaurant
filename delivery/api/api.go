@@ -64,6 +64,13 @@ func (api *API) Register(r *mux.Router) {
 	r.HandleFunc("/customer/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchCustomer, "update:customer")).Methods("PATCH")
 	r.HandleFunc("/customer/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteCustomer, "delete:customer")).Methods("DELETE")
 
+	// Employee
+	r.HandleFunc("/employee", middlewares.SetMiddlewareAuthentication(api.handleSelectEmployees, "read:employee")).Methods("GET")
+	r.HandleFunc("/employee/{id}", middlewares.SetMiddlewareAuthentication(api.handleGetEmployeeById, "read:employee")).Methods("GET")
+	r.HandleFunc("/employee", middlewares.SetMiddlewareAuthentication(api.handlePostEmployees, "create:employee")).Methods("POST")
+	r.HandleFunc("/employee/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchEmployee, "update:employee")).Methods("PATCH")
+	r.HandleFunc("/employee/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteEmployee, "delete:employee")).Methods("DELETE")
+
 }
 
 func (api *API) handleGetPing(w http.ResponseWriter, r *http.Request) {
