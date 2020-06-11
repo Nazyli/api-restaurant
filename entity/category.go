@@ -1,12 +1,12 @@
 package entity
 
-// Position struct
-type Position struct {
+// category struct
+type Category struct {
 	ID           int64  `json:"id"`
-	PositionName string `json:"position_name"`
+	CategoryName string `json:"category_name"`
 	AppID        int64  `json:"app_id"`
 	IsActive     int8   `json:"is_active"`
 }
 
-// Position list
-type Positions []Position
+// category list
+type Categorys []Category

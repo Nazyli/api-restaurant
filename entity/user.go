@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"gopkg.in/guregu/null.v3"
+	null "gopkg.in/guregu/null.v3"
 )
 
 // User struct
