@@ -15,8 +15,8 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
-func (s *svc) SignIn(ctx context.Context, app int64, email, password string) (token *auth.Token, status Status) {
-	user, err := s.user.GetByEmail(ctx, app, email)
+func (s *svc) SignIn(ctx context.Context, email, password string) (token *auth.Token, status Status) {
+	user, err := s.user.GetByEmail(ctx, s.AppID, email)
 	if err != nil {
 		log.Println(err)
 		if err == sql.ErrNoRows {
@@ -38,8 +38,8 @@ func (s *svc) SignIn(ctx context.Context, app int64, email, password string) (to
 	}
 	return token, Status{http.StatusOK, ""}
 }
-func (s *svc) GetUserByID(ctx context.Context, app int64, id int64, all bool, isAdmin bool, uid string) (user *entity.User, status Status) {
-	user, err := s.user.GetByID(ctx, app, id, all, isAdmin, uid)
+func (s *svc) GetUserByID(ctx context.Context, id int64, all bool, isAdmin bool, uid string) (user *entity.User, status Status) {
+	user, err := s.user.GetByID(ctx, s.AppID, id, all, isAdmin, uid)
 	if err == sql.ErrNoRows {
 		log.Println(err)
 		return user, Status{http.StatusNotFound, "User"}
@@ -50,15 +50,15 @@ func (s *svc) GetUserByID(ctx context.Context, app int64, id int64, all bool, is
 	}
 	return user, Status{http.StatusOK, ""}
 }
-func (s *svc) SelectUsers(ctx context.Context, app int64, all bool, isAdmin bool, uid string) (users entity.Users, status Status) {
-	user, err := s.user.Select(ctx, app, all, isAdmin, uid)
+func (s *svc) SelectUsers(ctx context.Context, all bool, isAdmin bool, uid string) (users entity.Users, status Status) {
+	user, err := s.user.Select(ctx, s.AppID, all, isAdmin, uid)
 	if err != nil {
 		log.Println(err)
 		return user, Status{http.StatusInternalServerError, ""}
 	}
 	return user, Status{http.StatusOK, ""}
 }
-func (s *svc) Insert(ctx context.Context, app int64, uid string, user *entity.User) (userData *entity.User, status Status) {
+func (s *svc) InsertUser(ctx context.Context, user *entity.User) (userData *entity.User, status Status) {
 	var (
 		hashUser = HashSHA1(user.Username)
 	)
@@ -71,12 +71,11 @@ func (s *svc) Insert(ctx context.Context, app int64, uid string, user *entity.Us
 
 	// Add
 	user.Password = password
-	user.CreatedBy = uid
 	user.CreatedAt = null.TimeFrom(time.Now())
 	user.UserHash = hashUser
 	user.IsActive = 1
-	user.AppID = app
-	err = s.user.Insert(ctx, uid, user)
+	user.AppID = s.AppID
+	err = s.user.Insert(ctx, user)
 	if err != nil {
 		log.Println(err)
 		return nil, Status{http.StatusInternalServerError, "User"}
@@ -84,16 +83,18 @@ func (s *svc) Insert(ctx context.Context, app int64, uid string, user *entity.Us
 
 	return user, Status{http.StatusOK, ""}
 }
-func (s *svc) Update(ctx context.Context, app int64, id int64, isAdmin bool, uid string, user *entity.User) (userData *entity.User, status Status) {
-	_, status = s.GetUserByID(ctx, app, id, false, isAdmin, uid)
+func (s *svc) UpdateUser(ctx context.Context, id int64, isAdmin bool, uid string, user *entity.User) (userData *entity.User, status Status) {
+	getUser, status := s.GetUserByID(ctx, id, false, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		return user, status
 	}
 
 	user.LastUpdateBy = &uid
 	user.UpdatedAt = null.TimeFrom(time.Now())
-	user.AppID = app
+	user.AppID = s.AppID
 	user.ID = id
+	user.CreatedBy = getUser.CreatedBy
+	user.UserHash = getUser.UserHash
 	err := s.user.Update(ctx, isAdmin, user)
 	if err != nil {
 		log.Println(err)
@@ -101,14 +102,14 @@ func (s *svc) Update(ctx context.Context, app int64, id int64, isAdmin bool, uid
 	}
 
 	// kirim response
-	userData, status = s.GetUserByID(ctx, app, id, false, isAdmin, uid)
+	userData, status = s.GetUserByID(ctx, id, false, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		return user, status
 	}
 	return userData, Status{http.StatusOK, ""}
 }
-func (s *svc) Delete(ctx context.Context, app int64, id int64, isAdmin bool, uid string) (status Status) {
-	getUser, status := s.GetUserByID(ctx, app, id, false, isAdmin, uid)
+func (s *svc) DeleteUser(ctx context.Context, id int64, isAdmin bool, uid string) (status Status) {
+	getUser, status := s.GetUserByID(ctx, s.AppID, false, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		return status
 	}
@@ -116,7 +117,7 @@ func (s *svc) Delete(ctx context.Context, app int64, id int64, isAdmin bool, uid
 	user := &entity.User{
 		ID:           id,
 		LastUpdateBy: &uid,
-		AppID:        app,
+		AppID:        s.AppID,
 		DeletedAt:    null.TimeFrom(time.Now()),
 		CreatedBy:    getUser.CreatedBy,
 	}

@@ -16,14 +16,12 @@ type CloudinaryConfig struct {
 
 // API struct
 type API struct {
-	AppID   int64
 	CDN     CloudinaryConfig
 	service _service.Service
 }
 
-func New(AppID int64, CDN CloudinaryConfig, service _service.Service) *API {
+func New(CDN CloudinaryConfig, service _service.Service) *API {
 	return &API{
-		AppID:   AppID,
 		CDN:     CDN,
 		service: service,
 	}
@@ -31,11 +29,20 @@ func New(AppID int64, CDN CloudinaryConfig, service _service.Service) *API {
 func (api *API) Register(r *mux.Router) {
 	r.HandleFunc("/ping", middlewares.SetMiddlewareJSON(api.handleGetPing)).Methods("GET")
 	r.HandleFunc("/login", middlewares.SetMiddlewareJSON(api.Login)).Methods("POST")
+	// User
 	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handleGetUserById, "read:user")).Methods("GET")
 	r.HandleFunc("/user", middlewares.SetMiddlewareAuthentication(api.handleSelectUsers, "read:user")).Methods("GET")
 	r.HandleFunc("/user", middlewares.SetMiddlewareAuthentication(api.handlePostUsers, "create:user")).Methods("POST")
-	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchUsers, "create:user")).Methods("PATCH")
-	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteUsers, "create:user")).Methods("DELETE")
+	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchUsers, "update:user")).Methods("PATCH")
+	r.HandleFunc("/user/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteUsers, "delete:user")).Methods("DELETE")
+
+	// Position
+	r.HandleFunc("/position", middlewares.SetMiddlewareAuthentication(api.handleSelectPositions, "read:position")).Methods("GET")
+	r.HandleFunc("/position/{id}", middlewares.SetMiddlewareAuthentication(api.handleGetPositionById, "read:position")).Methods("GET")
+	r.HandleFunc("/position", middlewares.SetMiddlewareAuthentication(api.handlePostPositions, "create:position")).Methods("POST")
+	r.HandleFunc("/position/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchPositions, "update:position")).Methods("PATCH")
+	r.HandleFunc("/position/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeletePositions, "delete:position")).Methods("DELETE")
+
 }
 
 func (api *API) handleGetPing(w http.ResponseWriter, r *http.Request) {

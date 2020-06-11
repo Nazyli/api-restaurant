@@ -19,3 +19,7 @@ type reqUser struct {
 	EmployeeID null.Int `json:"employee_id"`
 	Scope      string   `json:"scope" validate:"required"`
 }
+
+type reqPosition struct {
+	PositionName string `json:"position_name" validate:"required"`
+}

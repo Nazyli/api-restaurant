@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nazyli/api-restaurant/delivery/api"
 	_userMysql "github.com/nazyli/api-restaurant/domain/user/mysql"
+	_positionMysql "github.com/nazyli/api-restaurant/domain/position/mysql"
 	"github.com/nazyli/api-restaurant/service"
 	conn "github.com/nazyli/api-restaurant/util/database/mysql"
 )
@@ -32,9 +33,13 @@ func main() {
 	userMysql := _userMysql.New(db)
 	log.Println("User mysql is successfully initialized")
 
-	service := service.New(userMysql)
+	// Position
+	positionMysql := _positionMysql.New(db)
+	log.Println("Position mysql is successfully initialized")
+
+	service := service.New(cfg.APP_ID, userMysql,positionMysql)
 	router := mux.NewRouter()
-	api.New(cfg.APP_ID, cfg.CDNClaudinary, service).Register(router)
+	api.New(cfg.CDNClaudinary, service).Register(router)
 	log.Println("API successfully initialized")
 
 	log.Println("Webserver succesfully started")

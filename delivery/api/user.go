@@ -31,7 +31,7 @@ func (api *API) Login(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
 		return
 	}
-	token, status := api.service.SignIn(r.Context(), api.AppID, params.Email, params.Password)
+	token, status := api.service.SignIn(r.Context(), params.Email, params.Password)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed", status.ErrMsg)
 		return
@@ -64,7 +64,7 @@ func (api *API) handleGetUserById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	user, status := api.service.GetUserByID(r.Context(), api.AppID, id, all, isAdmin, uid)
+	user, status := api.service.GetUserByID(r.Context(), id, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get User", status.ErrMsg)
 		return
@@ -123,7 +123,7 @@ func (api *API) handleSelectUsers(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	user, status := api.service.SelectUsers(r.Context(), api.AppID, all, isAdmin, uid)
+	user, status := api.service.SelectUsers(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Users")
 		return
@@ -195,10 +195,11 @@ func (api *API) handlePostUsers(w http.ResponseWriter, r *http.Request) {
 		Password:   params.Password,
 		EmployeeID: params.EmployeeID,
 		Scope:      params.Scope,
+		CreatedBy:  uid,
 	}
-	user, status := api.service.Insert(r.Context(), api.AppID, uid, user)
+	user, status := api.service.InsertUser(r.Context(), user)
 	if status.Code != http.StatusOK {
-		responses.ERROR(w, status.Code, "Failed Insert User")
+		responses.ERROR(w, status.Code, "Failed Insert User", status.ErrMsg)
 		return
 	}
 	if user.Scope != "" {
@@ -265,7 +266,7 @@ func (api *API) handlePatchUsers(w http.ResponseWriter, r *http.Request) {
 		EmployeeID: params.EmployeeID,
 		Scope:      params.Scope,
 	}
-	user, status := api.service.Update(r.Context(), api.AppID, id, isAdmin, uid, user)
+	user, status := api.service.UpdateUser(r.Context(), id, isAdmin, uid, user)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update User", status.ErrMsg)
 		return
@@ -310,7 +311,7 @@ func (api *API) handleDeleteUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, isAdmin := auth.IsAdmin(r)
-	status := api.service.Delete(r.Context(), api.AppID, id, isAdmin, uid)
+	status := api.service.DeleteUser(r.Context(), id, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete User", status.ErrMsg)
 		return

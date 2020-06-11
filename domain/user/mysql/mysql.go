@@ -87,8 +87,8 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAd
 		query += " AND is_active = 1"
 	}
 	if !isAdmin {
-		query += " AND created_by = ?"
-		args = append(args, uid)
+		query += " AND (created_by = ? OR user_hash = ?)"
+		args = append(args, uid, uid)
 
 	}
 	err = m.db.GetContext(ctx, &u, query, args...)
@@ -144,8 +144,8 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 		query += " AND is_active = 1"
 	}
 	if !isAdmin {
-		query += " AND created_by = ?"
-		args = append(args, uid)
+		query += "  AND (created_by = ? OR user_hash = ?)"
+		args = append(args, uid, uid)
 
 	}
 	err = m.db.SelectContext(ctx, &u, query, args...)
@@ -172,7 +172,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 	return users, nil
 }
 
-func (m *MySQL) Insert(ctx context.Context, uid string, user *entity.User) (err error) {
+func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 	query := `
 	INSERT INTO user
 		(
@@ -241,7 +241,7 @@ func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (er
 		app_id = :app_id
 	`
 	if !isAdmin {
-		query += " AND created_by = :created_by"
+		query += " AND (created_by = :created_by OR user_hash = :user_hash)"
 
 	}
 	res, err := m.db.NamedExecContext(ctx, query, &User{
@@ -252,6 +252,7 @@ func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (er
 		Scope:        user.Scope,
 		AppID:        user.AppID,
 		CreatedBy:    user.CreatedBy,
+		UserHash:     user.UserHash,
 		UpdatedAt:    user.UpdatedAt,
 		LastUpdateBy: user.LastUpdateBy,
 		IsActive:     user.IsActive,
@@ -295,6 +296,9 @@ func (m *MySQL) Delete(ctx context.Context, isAdmin bool, user *entity.User) (er
 		return err
 	}
 	num, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
 	if num == 0 {
 		return sql.ErrNoRows
 	}
