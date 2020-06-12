@@ -53,7 +53,7 @@ type reqEmployee struct {
 }
 
 type reqOrderDetail struct {
-	InvoiceNum string   `json:"invoice_num" validate:"required"`
+	InvoiceNum string   `json:"invoice_num"`
 	MenuID     int64    `json:"menu_id" validate:"required"`
 	Amount     float64  `json:"amount" validate:"required"`
 	Discount   *float64 `json:"disc"`

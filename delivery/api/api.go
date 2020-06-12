@@ -72,12 +72,20 @@ func (api *API) Register(r *mux.Router) {
 	r.HandleFunc("/employee/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteEmployee, "delete:employee")).Methods("DELETE")
 
 	// Order
+	r.HandleFunc("/order", middlewares.SetMiddlewareAuthentication(api.handleSelectOrders, "read:order")).Methods("GET")
+	r.HandleFunc("/order/{inv}", middlewares.SetMiddlewareAuthentication(api.handleGetOrderByInv, "read:order")).Methods("GET")
 	r.HandleFunc("/order", middlewares.SetMiddlewareAuthentication(api.handlePostOrder, "create:order")).Methods("POST")
+	r.HandleFunc("/order/{inv}", middlewares.SetMiddlewareAuthentication(api.handleDeleteOrder, "delete:order")).Methods("DELETE")
 	r.HandleFunc("/calculateorder/{inv}", middlewares.SetMiddlewareAuthentication(api.handleSelectCalculateOrder, "read:order")).Methods("GET")
 	r.HandleFunc("/paymentorder/{inv}", middlewares.SetMiddlewareAuthentication(api.handlePatchPaymentOrder, "create:order")).Methods("PATCH")
 
 	// OrderDetail
+	r.HandleFunc("/orderdetail", middlewares.SetMiddlewareAuthentication(api.handleSelectOrderDetails, "read:orderdetail")).Methods("GET")
+	r.HandleFunc("/orderdetail/{id}", middlewares.SetMiddlewareAuthentication(api.handleGetOrderDetailById, "read:orderdetail")).Methods("GET")
+	r.HandleFunc("/orderdetail_by_inv/{inv}", middlewares.SetMiddlewareAuthentication(api.handleGetOrderDetailByInv, "read:orderdetail")).Methods("GET")
 	r.HandleFunc("/orderdetail", middlewares.SetMiddlewareAuthentication(api.handlePostOrderDetail, "create:orderdetail")).Methods("POST")
+	r.HandleFunc("/orderdetail/{id}", middlewares.SetMiddlewareAuthentication(api.handlePatchOrderDetail, "update:orderdetail")).Methods("PATCH")
+	r.HandleFunc("/orderdetail/{id}", middlewares.SetMiddlewareAuthentication(api.handleDeleteOrderDetail, "delete:orderdetail")).Methods("DELETE")
 
 }
 

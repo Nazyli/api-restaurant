@@ -95,10 +95,18 @@ type Service interface {
 	DeleteEmployee(ctx context.Context, id int64, isAdmin bool, uid string) (status Status)
 
 	//Order
+	SelectOrder(ctx context.Context, all bool, isAdmin bool, uid string) (orders entity.Orders, status Status)
+	GetOrderByInv(ctx context.Context, inv string, all bool, isAdmin bool, uid string) (order *entity.Order, status Status)
 	InsertOrder(ctx context.Context, uid string) (orderData *entity.Order, status Status)
 	PaymentOrder(ctx context.Context, inv string, isAdmin bool, uid string, order *entity.Order) (a *entity.Order, b entity.OrderDetails, status Status)
+	DeleteOrder(ctx context.Context, inv string, isAdmin bool, uid string) (status Status)
 
 	//OrderDetail
+	SelectOrderDetail(ctx context.Context, all bool, isAdmin bool, uid string) (orderDetails entity.OrderDetails, status Status)
+	SelectOrderDetailByInv(ctx context.Context, inv string, all bool, isAdmin bool, uid string) (orderDetails entity.OrderDetails, status Status)
+	GetOrderDetailByID(ctx context.Context, id int64, all, isAdmin bool, uid string) (orderDetail *entity.OrderDetail, status Status)
 	InsertOrderDetail(ctx context.Context, uid string, orderDetail *entity.OrderDetail) (orderData *entity.OrderDetail, status Status)
 	CalculateOrder(ctx context.Context, inv string, uid string) (orderData *entity.CalculateOrder, status Status)
+	UpdateOrderDetail(ctx context.Context, isAdmin bool, uid string, orderDetail *entity.OrderDetail) (orderDetailData *entity.OrderDetail, status Status)
+	DeleteOrderDetail(ctx context.Context, id int64, isAdmin bool, uid string) (status Status)
 }

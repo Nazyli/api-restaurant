@@ -12,6 +12,15 @@ import (
 	null "gopkg.in/guregu/null.v3"
 )
 
+func (s *svc) SelectOrder(ctx context.Context, all bool, isAdmin bool, uid string) (orders entity.Orders, status Status) {
+	order, err := s.order.Select(ctx, s.AppID, all, isAdmin, uid)
+	if err != nil {
+		log.Println(err)
+		return order, Status{http.StatusInternalServerError, "Failed Get Order s"}
+	}
+	return order, Status{http.StatusOK, ""}
+}
+
 func (s *svc) GetOrderByInv(ctx context.Context, inv string, all bool, isAdmin bool, uid string) (order *entity.Order, status Status) {
 	order, err := s.order.GetByInv(ctx, s.AppID, inv, all, isAdmin, uid)
 	if err == sql.ErrNoRows {
@@ -148,7 +157,6 @@ func (s *svc) InsertOrder(ctx context.Context, uid string) (orderData *entity.Or
 
 func (s *svc) UpdateOrder(ctx context.Context, isAdmin bool, uid string, order *entity.Order) (orderData *entity.Order, status Status) {
 	dt := time.Now()
-
 	getOrder, status := s.GetOrderByInv(ctx, order.InvoiceNum, false, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		return nil, status
@@ -170,6 +178,35 @@ func (s *svc) UpdateOrder(ctx context.Context, isAdmin bool, uid string, order *
 		return orderData, status
 	}
 	return orderData, Status{http.StatusOK, ""}
+}
+
+func (s *svc) DeleteOrder(ctx context.Context, inv string, isAdmin bool, uid string) (status Status) {
+	var paymentStatus int8
+	paymentStatus = 1
+	getOrder, status := s.GetOrderByInv(ctx, inv, false, isAdmin, uid)
+	if status.Code != http.StatusOK {
+		return status
+	}
+	if status.Code != http.StatusOK {
+		return status
+	}
+	if getOrder.PaymentStatus != nil || getOrder.PaymentStatus == &paymentStatus {
+		return Status{http.StatusBadRequest, "Order has been paid"}
+	}
+
+	order := &entity.Order{
+		InvoiceNum:   inv,
+		LastUpdateBy: &uid,
+		AppID:        s.AppID,
+		DeletedAt:    null.TimeFrom(time.Now()),
+		CreatedBy:    getOrder.CreatedBy,
+	}
+	err := s.order.Delete(ctx, isAdmin, order)
+	if err != nil {
+		log.Println(err)
+		return Status{http.StatusInternalServerError, "Menu"}
+	}
+	return Status{http.StatusOK, ""}
 }
 
 func (s *svc) invoice() string {
