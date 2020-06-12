@@ -11,7 +11,7 @@ type User struct {
 	Email        string    `db:"email"`
 	Password     string    `db:"password"`
 	UserHash     string    `db:"user_hash"`
-	EmployeeID   null.Int  `db:"employee_id"`
+	EmployeeID   *int64    `db:"employee_id"`
 	Scope        string    `db:"scope"`
 	AppID        int64     `db:"app_id"`
 	CreatedAt    null.Time `db:"created_at"`

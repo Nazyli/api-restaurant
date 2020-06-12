@@ -7,6 +7,8 @@ import (
 	_customer "github.com/nazyli/api-restaurant/domain/customer"
 	_employee "github.com/nazyli/api-restaurant/domain/employee"
 	_menu "github.com/nazyli/api-restaurant/domain/menu"
+	_order "github.com/nazyli/api-restaurant/domain/order"
+	_orderDetail "github.com/nazyli/api-restaurant/domain/order_detail"
 	_position "github.com/nazyli/api-restaurant/domain/position"
 	_user "github.com/nazyli/api-restaurant/domain/user"
 	"github.com/nazyli/api-restaurant/entity"
@@ -20,25 +22,31 @@ type Status struct {
 	ErrMsg string
 }
 type svc struct {
-	AppID    int64
-	user     _user.Repository
-	position _position.Repository
-	category _category.Repository
-	menu     _menu.Repository
-	customer _customer.Repository
-	employee _employee.Repository
+	AppID       int64
+	Tax         float64
+	user        _user.Repository
+	position    _position.Repository
+	category    _category.Repository
+	menu        _menu.Repository
+	customer    _customer.Repository
+	employee    _employee.Repository
+	order       _order.Repository
+	orderDetail _orderDetail.Repository
 }
 
 // New init service
-func New(AppID int64, user _user.Repository, position _position.Repository, category _category.Repository, menu _menu.Repository, customer _customer.Repository, employee _employee.Repository) Service {
+func New(AppID int64, Tax float64, user _user.Repository, position _position.Repository, category _category.Repository, menu _menu.Repository, customer _customer.Repository, employee _employee.Repository, order _order.Repository, orderDetail _orderDetail.Repository) Service {
 	return &svc{
-		AppID:    AppID,
-		user:     user,
-		position: position,
-		category: category,
-		menu:     menu,
-		customer: customer,
-		employee: employee,
+		AppID:       AppID,
+		user:        user,
+		position:    position,
+		category:    category,
+		menu:        menu,
+		customer:    customer,
+		employee:    employee,
+		Tax:         Tax,
+		order:       order,
+		orderDetail: orderDetail,
 	}
 }
 
@@ -85,4 +93,12 @@ type Service interface {
 	InsertEmployee(ctx context.Context, uid string, employee *entity.Employee) (employeeData *entity.Employee, status Status)
 	UpdateEmployee(ctx context.Context, isAdmin bool, uid string, employee *entity.Employee) (employeeData *entity.Employee, status Status)
 	DeleteEmployee(ctx context.Context, id int64, isAdmin bool, uid string) (status Status)
+
+	//Order
+	InsertOrder(ctx context.Context, uid string) (orderData *entity.Order, status Status)
+	PaymentOrder(ctx context.Context, inv string, isAdmin bool, uid string, order *entity.Order) (a *entity.Order, b entity.OrderDetails, status Status)
+
+	//OrderDetail
+	InsertOrderDetail(ctx context.Context, uid string, orderDetail *entity.OrderDetail) (orderData *entity.OrderDetail, status Status)
+	CalculateOrder(ctx context.Context, inv string, uid string) (orderData *entity.CalculateOrder, status Status)
 }

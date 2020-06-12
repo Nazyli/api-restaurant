@@ -7,9 +7,9 @@ type OrderDetail struct {
 	ID           int64     `json:"id"`
 	InvoiceNum   string    `json:"invoice_num"`
 	MenuID       int64     `json:"menu_id"`
-	Amount       string    `json:"amount"`
+	Amount       float64   `json:"amount"`
 	Price        float64   `json:"price"`
-	Discount     float64   `json:"disc"`
+	Discount     *float64  `json:"disc"`
 	SubTotal     float64   `json:"sub_total"`
 	AppID        int64     `json:"app_id"`
 	CreatedAt    null.Time `json:"created_at"`

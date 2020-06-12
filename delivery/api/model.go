@@ -1,7 +1,5 @@
 package api
 
-import "gopkg.in/guregu/null.v3"
-
 //DataResponse json
 type DataResponse struct {
 	ID         interface{} `json:"id,omitempty"`
@@ -13,11 +11,11 @@ type reqLogin struct {
 	Password string `json:"password" validate:"required"`
 }
 type reqUser struct {
-	Username   string   `json:"username" validate:"required"`
-	Email      string   `json:"email" validate:"required,email"`
-	Password   string   `json:"password"`
-	EmployeeID null.Int `json:"employee_id"`
-	Scope      string   `json:"scope" validate:"required"`
+	Username   string `json:"username" validate:"required"`
+	Email      string `json:"email" validate:"required,email"`
+	Password   string `json:"password"`
+	EmployeeID *int64 `json:"employee_id"`
+	Scope      string `json:"scope" validate:"required"`
 }
 
 type reqPosition struct {
@@ -52,4 +50,17 @@ type reqEmployee struct {
 	Bonus       *float64 `json:"bonus"`
 	FromDate    *string  `json:"from_date"`
 	FinishDate  *string  `json:"finish_date"`
+}
+
+type reqOrderDetail struct {
+	InvoiceNum string   `json:"invoice_num" validate:"required"`
+	MenuID     int64    `json:"menu_id" validate:"required"`
+	Amount     float64  `json:"amount" validate:"required"`
+	Discount   *float64 `json:"disc"`
+}
+
+type reqPayment struct {
+	Cash       float64 `json:"cash" validate:"required"`
+	CustomerID *int64  `json:"customer_id"`
+	Other      *string `json:"other"`
 }

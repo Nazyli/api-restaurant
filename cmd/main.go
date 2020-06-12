@@ -10,6 +10,8 @@ import (
 	_customerMysql "github.com/nazyli/api-restaurant/domain/customer/mysql"
 	_employeeMysql "github.com/nazyli/api-restaurant/domain/employee/mysql"
 	_menuMysql "github.com/nazyli/api-restaurant/domain/menu/mysql"
+	_orderMysql "github.com/nazyli/api-restaurant/domain/order/mysql"
+	_orderDetailMysql "github.com/nazyli/api-restaurant/domain/order_detail/mysql"
 	_positionMysql "github.com/nazyli/api-restaurant/domain/position/mysql"
 	_userMysql "github.com/nazyli/api-restaurant/domain/user/mysql"
 	"github.com/nazyli/api-restaurant/service"
@@ -58,12 +60,21 @@ func main() {
 	employeeMysql := _employeeMysql.New(db)
 	log.Println("Employee mysql is successfully initialized")
 
-	service := service.New(cfg.APP_ID, userMysql, positionMysql, categoryMysql, menuMysql, customerMysql, employeeMysql)
+	// Order
+	orderMysql := _orderMysql.New(db)
+	log.Println("Order mysql is successfully initialized")
+
+	// Order Detail
+	_orderDetailMysql := _orderDetailMysql.New(db)
+	log.Println("Order Detail mysql is successfully initialized")
+
+	service := service.New(cfg.APP_ID, cfg.Tax, userMysql, positionMysql, categoryMysql, menuMysql, customerMysql, employeeMysql, orderMysql, _orderDetailMysql)
 	router := mux.NewRouter()
 	api.New(cfg.CDNClaudinary, service).Register(router)
 	log.Println("API successfully initialized")
 
 	log.Println("Webserver succesfully started")
 	log.Println("Listening to port ", cfg.Webserver)
+
 	log.Fatal(http.ListenAndServe(cfg.Webserver, router))
 }

@@ -113,6 +113,64 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAd
 	return user, nil
 }
 
+// GetByID . . .
+func (m *MySQL) GetByHash(ctx context.Context, app int64, all bool, isAdmin bool, uid string) (user *entity.User, err error) {
+	var (
+		u    User
+		args []interface{}
+	)
+	query := `
+	SELECT
+		id,
+		username,
+		email,
+		user_hash,
+		employee_id,
+		scope,
+		app_id,
+		created_at,
+		created_by,
+		updated_at,
+		last_update_by,
+		deleted_at,
+		is_active
+	FROM
+		user
+	WHERE
+		user_hash = ? AND
+		app_id = ?
+		`
+	args = append(args, uid, app)
+	if !all {
+		query += " AND is_active = 1"
+	}
+	if !isAdmin {
+		query += " AND (created_by = ? OR user_hash = ?)"
+		args = append(args, uid, uid)
+
+	}
+	err = m.db.GetContext(ctx, &u, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	user = &entity.User{
+		ID:           u.ID,
+		Username:     u.Username,
+		Email:        u.Email,
+		UserHash:     u.UserHash,
+		EmployeeID:   u.EmployeeID,
+		Scope:        u.Scope,
+		CreatedAt:    u.CreatedAt,
+		CreatedBy:    u.CreatedBy,
+		UpdatedAt:    u.UpdatedAt,
+		LastUpdateBy: u.LastUpdateBy,
+		DeletedAt:    u.DeletedAt,
+		IsActive:     u.IsActive,
+		AppID:        u.AppID,
+	}
+	return user, nil
+}
+
 // Select . . .
 func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, uid string) (users entity.Users, err error) {
 	var (

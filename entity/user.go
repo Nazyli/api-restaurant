@@ -11,7 +11,7 @@ type User struct {
 	Email        string    `json:"email"`
 	Password     string    `json:"password,omitempty"`
 	UserHash     string    `json:"user_hash"`
-	EmployeeID   null.Int  `json:"employee_id"`
+	EmployeeID   *int64    `json:"employee_id"`
 	Scope        string    `json:"scope,omitempty"`
 	AppID        int64     `json:"app_id"`
 	CreatedBy    string    `json:"created_by"`
@@ -30,7 +30,7 @@ type UserByScope struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	UserHash     string    `json:"user_hash"`
-	EmployeeID   null.Int  `json:"employee_id"`
+	EmployeeID   *int64    `json:"employee_id"`
 	AppID        int64     `json:"app_id"`
 	CreatedBy    string    `json:"created_by"`
 	CreatedAt    null.Time `json:"created_at"`

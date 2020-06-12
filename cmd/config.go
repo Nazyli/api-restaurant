@@ -15,6 +15,7 @@ type config struct {
 	CDNClaudinary api.CloudinaryConfig
 	Database      conn.DBConfig
 	Webserver     string
+	Tax           float64
 }
 
 func loadConfig() (*config, error) {
@@ -43,11 +44,13 @@ func loadConfig() (*config, error) {
 		log.Fatalf("Error Generated APP ID")
 		return nil, err
 	}
+	tax, err := strconv.ParseFloat(os.Getenv("TAX"), 10)
 	cfg = config{
 		APP_ID:        app_id,
 		CDNClaudinary: claudinary,
 		Database:      database,
 		Webserver:     webserver,
+		Tax:           tax,
 	}
 	return &cfg, nil
 }

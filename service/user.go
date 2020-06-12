@@ -50,6 +50,18 @@ func (s *svc) GetUserByID(ctx context.Context, id int64, all bool, isAdmin bool,
 	}
 	return user, Status{http.StatusOK, ""}
 }
+func (s *svc) GetUserByHash(ctx context.Context, all bool, isAdmin bool, uid string) (user *entity.User, status Status) {
+	user, err := s.user.GetByHash(ctx, s.AppID, all, isAdmin, uid)
+	if err == sql.ErrNoRows {
+		log.Println(err)
+		return user, Status{http.StatusNotFound, "User"}
+	}
+	if err != nil {
+		log.Println(err)
+		return user, Status{http.StatusInternalServerError, "User"}
+	}
+	return user, Status{http.StatusOK, ""}
+}
 func (s *svc) SelectUsers(ctx context.Context, all bool, isAdmin bool, uid string) (users entity.Users, status Status) {
 	user, err := s.user.Select(ctx, s.AppID, all, isAdmin, uid)
 	if err != nil {
