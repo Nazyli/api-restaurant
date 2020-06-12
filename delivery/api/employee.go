@@ -5,12 +5,14 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/nazyli/api-restaurant/entity"
 	"github.com/nazyli/api-restaurant/util/auth"
 	"github.com/nazyli/api-restaurant/util/responses"
 	"gopkg.in/go-playground/validator.v9"
+	"gopkg.in/guregu/null.v3"
 )
 
 func (api *API) handleSelectEmployees(w http.ResponseWriter, r *http.Request) {
@@ -133,13 +135,27 @@ func (api *API) handleGetEmployeeById(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) handlePostEmployees(w http.ResponseWriter, r *http.Request) {
 	var (
-		params reqEmployee
+		params                            reqEmployee
+		DateOfBirth, FromDate, FinishDate null.Time
+		t                                 time.Time
 	)
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
 		log.Println(err)
 		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
 		return
+	}
+	if params.DateOfBirth != nil {
+		t, _ = time.Parse("2006-01-02", *params.DateOfBirth)
+		DateOfBirth = null.TimeFrom(t)
+	}
+	if params.FromDate != nil {
+		t, _ = time.Parse("2006-01-02", *params.FromDate)
+		FromDate = null.TimeFrom(t)
+	}
+	if params.FinishDate != nil {
+		t, _ = time.Parse("2006-01-02", *params.FinishDate)
+		FinishDate = null.TimeFrom(t)
 	}
 	v := validator.New()
 	err = v.Struct(params)
@@ -150,15 +166,16 @@ func (api *API) handlePostEmployees(w http.ResponseWriter, r *http.Request) {
 	}
 	uid, _ := auth.IsAdmin(r)
 	employee := &entity.Employee{
+		PositionID:  params.PositionID,
 		Name:        params.Name,
-		DateOfBirth: params.DateOfBirth,
+		DateOfBirth: DateOfBirth,
 		Address:     params.Address,
 		Gender:      params.Gender,
 		Email:       params.Email,
 		Salary:      params.Salary,
 		Bonus:       params.Bonus,
-		FromDate:    params.FromDate,
-		FinishDate:  params.FinishDate,
+		FromDate:    FromDate,
+		FinishDate:  FinishDate,
 	}
 	employee, status := api.service.InsertEmployee(r.Context(), uid, employee)
 	if status.Code != http.StatusOK {
@@ -198,7 +215,9 @@ func (api *API) handlePostEmployees(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) handlePatchEmployee(w http.ResponseWriter, r *http.Request) {
 	var (
-		params reqEmployee
+		params                            reqEmployee
+		DateOfBirth, FromDate, FinishDate null.Time
+		t                                 time.Time
 	)
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
@@ -219,18 +238,32 @@ func (api *API) handlePatchEmployee(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusBadRequest, "Invalid Parameter")
 		return
 	}
+
+	if params.DateOfBirth != nil {
+		t, _ = time.Parse("2006-01-02", *params.DateOfBirth)
+		DateOfBirth = null.TimeFrom(t)
+	}
+	if params.FromDate != nil {
+		t, _ = time.Parse("2006-01-02", *params.FromDate)
+		FromDate = null.TimeFrom(t)
+	}
+	if params.FinishDate != nil {
+		t, _ = time.Parse("2006-01-02", *params.FinishDate)
+		FinishDate = null.TimeFrom(t)
+	}
 	uid, isAdmin := auth.IsAdmin(r)
 	employee := &entity.Employee{
 		ID:          id,
+		PositionID:  params.PositionID,
 		Name:        params.Name,
-		DateOfBirth: params.DateOfBirth,
+		DateOfBirth: DateOfBirth,
 		Address:     params.Address,
 		Gender:      params.Gender,
 		Email:       params.Email,
 		Salary:      params.Salary,
 		Bonus:       params.Bonus,
-		FromDate:    params.FromDate,
-		FinishDate:  params.FinishDate,
+		FromDate:    FromDate,
+		FinishDate:  FinishDate,
 	}
 	employee, status := api.service.UpdateEmployee(r.Context(), isAdmin, uid, employee)
 	if status.Code != http.StatusOK {

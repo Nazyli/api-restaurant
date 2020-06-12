@@ -14,12 +14,12 @@ type User struct {
 	EmployeeID   null.Int  `json:"employee_id"`
 	Scope        string    `json:"scope,omitempty"`
 	AppID        int64     `json:"app_id"`
-	CreatedBy    string    `json:"created_by,omitempty"`
-	CreatedAt    null.Time `json:"created_at,omitempty"`
-	UpdatedAt    null.Time `json:"updated_at,omitempty"`
-	LastUpdateBy *string   `json:"last_update_by,omitempty"`
-	DeletedAt    null.Time `json:"deleted_at,omitempty"`
-	IsActive     int8      `json:"is_active,omitempty"`
+	CreatedBy    string    `json:"created_by"`
+	CreatedAt    null.Time `json:"created_at"`
+	UpdatedAt    null.Time `json:"updated_at"`
+	LastUpdateBy *string   `json:"last_update_by"`
+	DeletedAt    null.Time `json:"deleted_at"`
+	IsActive     int8      `json:"is_active"`
 }
 
 // Users list

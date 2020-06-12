@@ -108,10 +108,10 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 	}
 	if !isAdmin {
 		query += "  AND created_by = ?"
-		args = append(args, uid, uid)
+		args = append(args, uid)
 
 	}
-	err = m.db.SelectContext(ctx, &m, query, args...)
+	err = m.db.SelectContext(ctx, &i, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,6 @@ func (m *MySQL) Insert(ctx context.Context, menu *entity.Menu) (err error) {
 			:price,
 			:disc,
 			:show_menu,
-			:scope,
 			:app_id,
 			:created_at,
 			:created_by,

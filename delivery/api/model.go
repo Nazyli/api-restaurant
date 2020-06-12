@@ -42,13 +42,14 @@ type reqCustomer struct {
 }
 
 type reqEmployee struct {
-	Name        string     `json:"name"`
-	DateOfBirth *null.Time `json:"date_of_birth"`
-	Address     *float64   `json:"address"`
-	Gender      *string    `json:"gender"`
-	Email       *string    `json:"email"`
-	Salary      float64    `json:"salary"`
-	Bonus       *float64   `json:"bonus"`
-	FromDate    *null.Time `json:"from_date"`
-	FinishDate  *null.Time `json:"finish_date"`
+	Name        string   `json:"name"`
+	PositionID  int64    `json:"position_id" validate:"required"`
+	DateOfBirth *string  `json:"date_of_birth"`
+	Address     *string  `json:"address"`
+	Gender      *string  `json:"gender"`
+	Email       *string  `json:"email"`
+	Salary      float64  `json:"salary"`
+	Bonus       *float64 `json:"bonus"`
+	FromDate    *string  `json:"from_date"`
+	FinishDate  *string  `json:"finish_date"`
 }

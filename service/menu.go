@@ -38,7 +38,6 @@ func (s *svc) InsertMenu(ctx context.Context, uid string, menu *entity.Menu) (me
 	menu.CreatedBy = uid
 	menu.IsActive = 1
 	menu.AppID = s.AppID
-	menu.Discount = nil
 	menu.ShowMenu = 1
 	err := s.menu.Insert(ctx, menu)
 	if err != nil {
@@ -58,7 +57,6 @@ func (s *svc) UpdateMenu(ctx context.Context, isAdmin bool, uid string, menu *en
 	menu.AppID = s.AppID
 	menu.CreatedBy = getMenu.CreatedBy
 	menu.ShowMenu = getMenu.ShowMenu
-	menu.Discount = nil
 	menu.LastUpdateBy = &uid
 	err := s.menu.Update(ctx, isAdmin, menu)
 	if err != nil {

@@ -171,7 +171,6 @@ func (m *MySQL) Insert(ctx context.Context, employee *entity.Employee) (err erro
 	query := `
 	INSERT INTO employee
 		(
-			id,
 			position_id,
 			name,
 			date_of_birth,
@@ -194,7 +193,6 @@ func (m *MySQL) Insert(ctx context.Context, employee *entity.Employee) (err erro
 		(
 			:position_id,
 			:name,
-			:id,
 			:date_of_birth,
 			:address,
 			:gender,

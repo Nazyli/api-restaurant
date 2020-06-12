@@ -7,7 +7,7 @@ type Customer struct {
 	ID           int64     `db:"id"`
 	Name         string    `db:"name"`
 	Email        *string   `db:"email"`
-	Addreas      *string   `db:"addreas"`
+	Addreas      *string   `db:"address"`
 	AppID        int64     `db:"app_id"`
 	CreatedAt    null.Time `db:"created_at"`
 	CreatedBy    string    `db:"created_by"`

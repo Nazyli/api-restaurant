@@ -34,7 +34,7 @@ func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
 
 	menu, status := api.service.SelectMenues(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
-		responses.ERROR(w, status.Code, "Failed Get Menus")
+		responses.ERROR(w, status.Code, "Failed Get Menues")
 		return
 	}
 
@@ -115,7 +115,7 @@ func (api *API) handleGetMenuById(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handlePostMenus(w http.ResponseWriter, r *http.Request) {
+func (api *API) handlePostMenu(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqMenu
 	)
