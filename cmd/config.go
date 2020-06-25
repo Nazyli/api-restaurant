@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nazyli/api-restaurant/delivery/api"
 	conn "github.com/nazyli/api-restaurant/util/database/mysql"
+
 )
 
 type config struct {
@@ -21,11 +22,15 @@ type config struct {
 func loadConfig() (*config, error) {
 	var cfg config
 	var err error
-	err = godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error getting env, %v", err)
-		return nil, err
+	_ = godotenv.Load()
+	if (os.Getenv("APP_NAME") == ""){
+		log.Fatalf("Get App Name not success")
 	}
+	log.Println("Starting ", os.Getenv("APP_NAME"));
+	// if err != nil && strings.Contains(err.Error(), "directory")  {
+	// 	log.Fatalf("Error getting env, %v", err)
+	// 	return nil, err
+	// }
 	database := conn.DBConfig{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),

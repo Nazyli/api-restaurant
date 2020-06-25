@@ -17,3 +17,27 @@ jobs:
         run: |
           go mod download
           go build cmd/*.go
+
+
+# ci.yml
+# name: CI
+
+# on: 
+#   push:
+#     branches:    
+#       - master 
+
+# jobs:
+#   build:
+
+#     runs-on: ubuntu-latest
+    
+#     steps:
+#     - uses: actions/checkout@v1
+    
+#     - name: Add remote origin
+#       run: |
+#         git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+#     - name: Deploy to Heroku
+#       run: |
+#         git push heroku HEAD:master -f
