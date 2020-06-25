@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/nazyli/api-restaurant/delivery/api"
@@ -22,7 +23,11 @@ func loadConfig() (*config, error) {
 	var cfg config
 	var err error
 	err = godotenv.Load()
-	if err != nil {
+	if (os.Getenv("APP_NAME") == ""){
+		log.Fatalf("Get App Name not success")
+	}
+	log.Println("Starting ", os.Getenv("APP_NAME"));
+	if err != nil && strings.Contains(err.Error(), "directory")  {
 		log.Fatalf("Error getting env, %v", err)
 		return nil, err
 	}
