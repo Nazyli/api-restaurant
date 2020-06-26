@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/nazyli/api-restaurant/entity"
+	"github.com/nazyli/api-restaurant/util/dbdialect"
 )
 
 // MySQL struct
@@ -37,6 +38,7 @@ func (m *MySQL) GetByEmail(ctx context.Context, app int64, email string) (user *
 		email = ? AND
 		app_id = ?
 		`
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &u, query, email, app)
 	if err != nil {
 		return nil, err
@@ -91,6 +93,7 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAd
 		args = append(args, uid, uid)
 
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &u, query, args...)
 	if err != nil {
 		return nil, err
@@ -149,6 +152,7 @@ func (m *MySQL) GetByHash(ctx context.Context, app int64, all bool, isAdmin bool
 		args = append(args, uid, uid)
 
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &u, query, args...)
 	if err != nil {
 		return nil, err
@@ -206,6 +210,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 		args = append(args, uid, uid)
 
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.SelectContext(ctx, &u, query, args...)
 	if err != nil {
 		return nil, err
@@ -259,7 +264,7 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 			:is_active
 		);
 	`
-	res, err := m.db.NamedExecContext(ctx, query, &User{
+	_, err = m.db.NamedExecContext(ctx, query, &User{
 		Username:   user.Username,
 		Email:      user.Email,
 		Password:   user.Password,
@@ -274,10 +279,10 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 	if err != nil {
 		return err
 	}
-	user.ID, err = res.LastInsertId()
-	if err != nil {
-		return err
-	}
+	// user.ID, err = res.LastInsertId()
+	// if err != nil {
+	// 	return err
+	// }
 	return err
 }
 
