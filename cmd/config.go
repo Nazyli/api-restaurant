@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -43,7 +44,11 @@ func loadConfig() (*config, error) {
 		APIKey:      os.Getenv("CLOUDINARY_API_KEY"),
 		APISecret:   os.Getenv("CLOUDINARY_API_SECRET"),
 	}
+
 	webserver := os.Getenv("WEBSERVER_LISTEN_ADDRESS")
+	if os.Getenv("PORT") != "" {
+		webserver = fmt.Sprintf(":%v", os.Getenv("PORT"))
+	}
 	app_id, err := strconv.ParseInt(os.Getenv("APP_ID"), 10, 8)
 	if err != nil {
 		log.Fatalf("Error Generated APP ID")
