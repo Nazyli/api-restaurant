@@ -7,4 +7,5 @@ type DBConfig struct {
 	Name     string
 	Username string
 	Password string
+	Dialect  string
 }

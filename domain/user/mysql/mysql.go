@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/nazyli/api-restaurant/entity"
+	"github.com/nazyli/api-restaurant/util/dbdialect"
 )
 
 // MySQL struct
@@ -31,12 +32,13 @@ func (m *MySQL) GetByEmail(ctx context.Context, app int64, email string) (user *
 		employee_id,
 		scope 
 	FROM
-		user
+		users
 	WHERE
 		is_active = 1 AND
 		email = ? AND
 		app_id = ?
 		`
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &u, query, email, app)
 	if err != nil {
 		return nil, err
@@ -77,7 +79,7 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAd
 		deleted_at,
 		is_active
 	FROM
-		user
+		users
 	WHERE
 		id = ? AND
 		app_id = ?
@@ -91,6 +93,7 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAd
 		args = append(args, uid, uid)
 
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &u, query, args...)
 	if err != nil {
 		return nil, err
@@ -135,7 +138,7 @@ func (m *MySQL) GetByHash(ctx context.Context, app int64, all bool, isAdmin bool
 		deleted_at,
 		is_active
 	FROM
-		user
+		users
 	WHERE
 		user_hash = ? AND
 		app_id = ?
@@ -149,6 +152,7 @@ func (m *MySQL) GetByHash(ctx context.Context, app int64, all bool, isAdmin bool
 		args = append(args, uid, uid)
 
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &u, query, args...)
 	if err != nil {
 		return nil, err
@@ -193,7 +197,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 		deleted_at,
 		is_active
 	FROM
-		user
+		users
 	WHERE
 		app_id = ?
 		`
@@ -206,6 +210,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 		args = append(args, uid, uid)
 
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.SelectContext(ctx, &u, query, args...)
 	if err != nil {
 		return nil, err
@@ -232,7 +237,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 
 func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 	query := `
-	INSERT INTO user
+	INSERT INTO users
 		(
 			username,
 			email,
@@ -259,7 +264,7 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 			:is_active
 		);
 	`
-	res, err := m.db.NamedExecContext(ctx, query, &User{
+	_, err = m.db.NamedExecContext(ctx, query, &User{
 		Username:   user.Username,
 		Email:      user.Email,
 		Password:   user.Password,
@@ -274,17 +279,17 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 	if err != nil {
 		return err
 	}
-	user.ID, err = res.LastInsertId()
-	if err != nil {
-		return err
-	}
+	// user.ID, err = res.LastInsertId()
+	// if err != nil {
+	// 	return err
+	// }
 	return err
 }
 
 func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
 	query := `
 	UPDATE 
-		user
+		users
 	SET
 		username =:username,
 		email =:email,
@@ -331,7 +336,7 @@ func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (er
 func (m *MySQL) Delete(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
 	query := `
 	UPDATE
-		user
+		users
 	SET
 		is_active = 0,
 		deleted_at = :deleted_at,

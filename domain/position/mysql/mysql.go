@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/nazyli/api-restaurant/entity"
+	"github.com/nazyli/api-restaurant/util/dbdialect"
 )
 
 // MySQL struct
@@ -36,6 +37,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool) (positions enti
 	if !all {
 		query += " AND is_active = 1"
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.SelectContext(ctx, &p, query, app)
 	if err != nil {
 		return nil, err
@@ -69,6 +71,7 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool) (pos
 	if !all {
 		query += " AND is_active = 1"
 	}
+	query = dbdialect.New(m.db).SetQuery(query)
 	err = m.db.GetContext(ctx, &p, query, app, id)
 	if err != nil {
 		return nil, err
@@ -96,7 +99,7 @@ func (m *MySQL) Insert(ctx context.Context, position *entity.Position) (err erro
 			:is_active
 		);
 	`
-	res, err := m.db.NamedExecContext(ctx, query, &Position{
+	_, err = m.db.NamedExecContext(ctx, query, &Position{
 		PositionName: position.PositionName,
 		AppID:        position.AppID,
 		IsActive:     position.IsActive,
@@ -104,10 +107,10 @@ func (m *MySQL) Insert(ctx context.Context, position *entity.Position) (err erro
 	if err != nil {
 		return err
 	}
-	position.ID, err = res.LastInsertId()
-	if err != nil {
-		return err
-	}
+	// position.ID, err = res.LastInsertId()
+	// if err != nil {
+	// 	return err
+	// }
 	return err
 }
 func (m *MySQL) Update(ctx context.Context, position *entity.Position) (err error) {

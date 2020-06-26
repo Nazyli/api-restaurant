@@ -1,0 +1,43 @@
+name: Build
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+
+      - uses: actions/checkout@v1
+
+      - name: Build
+        run: |
+          go mod download
+          go build cmd/*.go
+
+
+# ci.yml
+# name: CI
+
+# on: 
+#   push:
+#     branches:    
+#       - master 
+
+# jobs:
+#   build:
+
+#     runs-on: ubuntu-latest
+    
+#     steps:
+#     - uses: actions/checkout@v1
+    
+#     - name: Add remote origin
+#       run: |
+#         git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+#     - name: Deploy to Heroku
+#       run: |
+#         git push heroku HEAD:master -f

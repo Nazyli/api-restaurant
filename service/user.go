@@ -22,7 +22,7 @@ func (s *svc) SignIn(ctx context.Context, email, password string) (token *auth.T
 		if err == sql.ErrNoRows {
 			return nil, Status{http.StatusNotFound, "Email"}
 		}
-		return nil, Status{http.StatusNotFound, "Email"}
+		return nil, Status{http.StatusInternalServerError, "Email"}
 	}
 
 	err = VerifyPassword(user.Password, password)
@@ -74,6 +74,10 @@ func (s *svc) InsertUser(ctx context.Context, uid string, user *entity.User) (us
 	var (
 		hashUser = HashSHA1(user.Username)
 	)
+	_, err := s.user.GetByEmail(ctx, s.AppID, user.Email)
+	if err == nil {
+		return nil, Status{http.StatusFound, "Email has been used"}
+	}
 	hashedPassword, err := Hash(user.Password)
 	if err != nil {
 		log.Println(err)
@@ -142,11 +146,12 @@ func (s *svc) DeleteUser(ctx context.Context, id int64, isAdmin bool, uid string
 	return Status{http.StatusOK, ""}
 }
 
-// func
+// VerifyPassword . . .
 func VerifyPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
+// HashSHA1 . .
 func HashSHA1(text string) (hash string) {
 	var sha = sha1.New()
 	sha.Write([]byte(text))
@@ -155,6 +160,7 @@ func HashSHA1(text string) (hash string) {
 	return
 }
 
+// Hash . . .
 func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }

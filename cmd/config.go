@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -21,24 +22,33 @@ type config struct {
 func loadConfig() (*config, error) {
 	var cfg config
 	var err error
-	err = godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error getting env, %v", err)
-		return nil, err
+	_ = godotenv.Load()
+	if os.Getenv("APP_NAME") == "" {
+		log.Fatalf("Get App Name not success")
 	}
+	log.Println("Starting ", os.Getenv("APP_NAME"))
+	// if err != nil && strings.Contains(err.Error(), "directory")  {
+	// 	log.Fatalf("Error getting env, %v", err)
+	// 	return nil, err
+	// }
 	database := conn.DBConfig{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
 		Name:     os.Getenv("DB_NAME"),
 		Username: os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
+		Dialect:  os.Getenv("DB_DIALECT"),
 	}
 	claudinary := api.CloudinaryConfig{
 		AccountName: os.Getenv("CLOUDINARY_NAME"),
 		APIKey:      os.Getenv("CLOUDINARY_API_KEY"),
 		APISecret:   os.Getenv("CLOUDINARY_API_SECRET"),
 	}
+
 	webserver := os.Getenv("WEBSERVER_LISTEN_ADDRESS")
+	if os.Getenv("PORT") != "" {
+		webserver = fmt.Sprintf(":%v", os.Getenv("PORT"))
+	}
 	app_id, err := strconv.ParseInt(os.Getenv("APP_ID"), 10, 8)
 	if err != nil {
 		log.Fatalf("Error Generated APP ID")

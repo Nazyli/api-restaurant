@@ -15,8 +15,7 @@ import (
 	"github.com/nazyli/api-restaurant/util/auth"
 )
 
-//DataResponse json
-
+// Status . . .
 type Status struct {
 	Code   int
 	ErrMsg string
@@ -50,6 +49,7 @@ func New(AppID int64, Tax float64, user _user.Repository, position _position.Rep
 	}
 }
 
+// Service . .
 type Service interface {
 	SignIn(ctx context.Context, email, password string) (token *auth.Token, status Status)
 	// User
