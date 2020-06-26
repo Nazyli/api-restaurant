@@ -142,11 +142,12 @@ func (s *svc) DeleteUser(ctx context.Context, id int64, isAdmin bool, uid string
 	return Status{http.StatusOK, ""}
 }
 
-// func
+// VerifyPassword . . .
 func VerifyPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
+// HashSHA1 . .
 func HashSHA1(text string) (hash string) {
 	var sha = sha1.New()
 	sha.Write([]byte(text))
@@ -155,6 +156,7 @@ func HashSHA1(text string) (hash string) {
 	return
 }
 
+// Hash . . .
 func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }

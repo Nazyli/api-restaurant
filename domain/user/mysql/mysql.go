@@ -31,7 +31,7 @@ func (m *MySQL) GetByEmail(ctx context.Context, app int64, email string) (user *
 		employee_id,
 		scope 
 	FROM
-		user
+		users
 	WHERE
 		is_active = 1 AND
 		email = ? AND
@@ -77,7 +77,7 @@ func (m *MySQL) GetByID(ctx context.Context, app int64, id int64, all bool, isAd
 		deleted_at,
 		is_active
 	FROM
-		user
+		users
 	WHERE
 		id = ? AND
 		app_id = ?
@@ -135,7 +135,7 @@ func (m *MySQL) GetByHash(ctx context.Context, app int64, all bool, isAdmin bool
 		deleted_at,
 		is_active
 	FROM
-		user
+		users
 	WHERE
 		user_hash = ? AND
 		app_id = ?
@@ -193,7 +193,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 		deleted_at,
 		is_active
 	FROM
-		user
+		users
 	WHERE
 		app_id = ?
 		`
@@ -232,7 +232,7 @@ func (m *MySQL) Select(ctx context.Context, app int64, all bool, isAdmin bool, u
 
 func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 	query := `
-	INSERT INTO user
+	INSERT INTO users
 		(
 			username,
 			email,
@@ -284,7 +284,7 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
 	query := `
 	UPDATE 
-		user
+		users
 	SET
 		username =:username,
 		email =:email,
@@ -331,7 +331,7 @@ func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (er
 func (m *MySQL) Delete(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
 	query := `
 	UPDATE
-		user
+		users
 	SET
 		is_active = 0,
 		deleted_at = :deleted_at,
