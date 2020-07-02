@@ -15,7 +15,7 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
-func (api *API) handleSelectEmployees(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectEmployees(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -34,7 +34,7 @@ func (api *API) handleSelectEmployees(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	employees, status := api.service.SelectEmployees(r.Context(), all, isAdmin, uid)
+	employees, status := api.Service.SelectEmployees(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Employees")
 		return
@@ -74,7 +74,7 @@ func (api *API) handleSelectEmployees(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetEmployeeById(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetEmployeeById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -98,7 +98,7 @@ func (api *API) handleGetEmployeeById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	employee, status := api.service.GetEmployeeByID(r.Context(), id, all, isAdmin, uid)
+	employee, status := api.Service.GetEmployeeByID(r.Context(), id, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Employe", status.ErrMsg)
 		return
@@ -133,7 +133,7 @@ func (api *API) handleGetEmployeeById(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handlePostEmployees(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostEmployees(w http.ResponseWriter, r *http.Request) {
 	var (
 		params                            reqEmployee
 		DateOfBirth, FromDate, FinishDate null.Time
@@ -177,7 +177,7 @@ func (api *API) handlePostEmployees(w http.ResponseWriter, r *http.Request) {
 		FromDate:    FromDate,
 		FinishDate:  FinishDate,
 	}
-	employee, status := api.service.InsertEmployee(r.Context(), uid, employee)
+	employee, status := api.Service.InsertEmployee(r.Context(), uid, employee)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Employee", status.ErrMsg)
 		return
@@ -213,7 +213,7 @@ func (api *API) handlePostEmployees(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) handlePatchEmployee(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchEmployee(w http.ResponseWriter, r *http.Request) {
 	var (
 		params                            reqEmployee
 		DateOfBirth, FromDate, FinishDate null.Time
@@ -265,7 +265,7 @@ func (api *API) handlePatchEmployee(w http.ResponseWriter, r *http.Request) {
 		FromDate:    FromDate,
 		FinishDate:  FinishDate,
 	}
-	employee, status := api.service.UpdateEmployee(r.Context(), isAdmin, uid, employee)
+	employee, status := api.Service.UpdateEmployee(r.Context(), isAdmin, uid, employee)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Employee", status.ErrMsg)
 		return
@@ -300,7 +300,7 @@ func (api *API) handlePatchEmployee(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 
 }
-func (api *API) handleDeleteEmployee(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
@@ -308,7 +308,7 @@ func (api *API) handleDeleteEmployee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, isAdmin := auth.IsAdmin(r)
-	status := api.service.DeleteEmployee(r.Context(), id, isAdmin, uid)
+	status := api.Service.DeleteEmployee(r.Context(), id, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete User", status.ErrMsg)
 		return

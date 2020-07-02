@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectMenues(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -32,7 +32,7 @@ func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	menu, status := api.service.SelectMenues(r.Context(), all, isAdmin, uid)
+	menu, status := api.Service.SelectMenues(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Menues")
 		return
@@ -64,7 +64,7 @@ func (api *API) handleSelectMenues(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetMenuById(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetMenuById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -88,7 +88,7 @@ func (api *API) handleGetMenuById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	menu, status := api.service.GetMenuByID(r.Context(), id, all, isAdmin, uid)
+	menu, status := api.Service.GetMenuByID(r.Context(), id, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Menu", status.ErrMsg)
 		return
@@ -115,7 +115,7 @@ func (api *API) handleGetMenuById(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handlePostMenu(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostMenu(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqMenu
 	)
@@ -139,7 +139,7 @@ func (api *API) handlePostMenu(w http.ResponseWriter, r *http.Request) {
 		Price:      params.Price,
 		Discount:   params.Discount,
 	}
-	menu, status := api.service.InsertMenu(r.Context(), uid, menu)
+	menu, status := api.Service.InsertMenu(r.Context(), uid, menu)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Menu", status.ErrMsg)
 		return
@@ -167,7 +167,7 @@ func (api *API) handlePostMenu(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) handlePatchMenu(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchMenu(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqMenu
 	)
@@ -198,7 +198,7 @@ func (api *API) handlePatchMenu(w http.ResponseWriter, r *http.Request) {
 		Price:      params.Price,
 		Discount:   params.Discount,
 	}
-	menu, status := api.service.UpdateMenu(r.Context(), isAdmin, uid, menu)
+	menu, status := api.Service.UpdateMenu(r.Context(), isAdmin, uid, menu)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Menu", status.ErrMsg)
 		return
@@ -225,7 +225,7 @@ func (api *API) handlePatchMenu(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 
 }
-func (api *API) handleDeleteMenu(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeleteMenu(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
@@ -233,7 +233,7 @@ func (api *API) handleDeleteMenu(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, isAdmin := auth.IsAdmin(r)
-	status := api.service.DeleteMenu(r.Context(), id, isAdmin, uid)
+	status := api.Service.DeleteMenu(r.Context(), id, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete User", status.ErrMsg)
 		return

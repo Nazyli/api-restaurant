@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectOrderDetails(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectOrderDetails(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -32,7 +32,7 @@ func (api *API) handleSelectOrderDetails(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	orderDetail, status := api.service.SelectOrderDetail(r.Context(), all, isAdmin, uid)
+	orderDetail, status := api.Service.SelectOrderDetail(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Order Details")
 		return
@@ -64,7 +64,7 @@ func (api *API) handleSelectOrderDetails(w http.ResponseWriter, r *http.Request)
 	}
 	responses.OK(w, res)
 }
-func (api *API) handleGetOrderDetailById(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetOrderDetailById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -88,7 +88,7 @@ func (api *API) handleGetOrderDetailById(w http.ResponseWriter, r *http.Request)
 			}
 		}
 	}
-	orderDetail, status := api.service.GetOrderDetailByID(r.Context(), id, all, isAdmin, uid)
+	orderDetail, status := api.Service.GetOrderDetailByID(r.Context(), id, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Order Detail", status.ErrMsg)
 		return
@@ -116,7 +116,7 @@ func (api *API) handleGetOrderDetailById(w http.ResponseWriter, r *http.Request)
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetOrderDetailByInv(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetOrderDetailByInv(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -136,7 +136,7 @@ func (api *API) handleGetOrderDetailByInv(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	orderDetail, status := api.service.SelectOrderDetailByInv(r.Context(), inv, all, isAdmin, uid)
+	orderDetail, status := api.Service.SelectOrderDetailByInv(r.Context(), inv, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Order Details")
 		return
@@ -168,7 +168,7 @@ func (api *API) handleGetOrderDetailByInv(w http.ResponseWriter, r *http.Request
 	}
 	responses.OK(w, res)
 }
-func (api *API) handlePostOrderDetail(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostOrderDetail(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqOrderDetail
 	)
@@ -196,7 +196,7 @@ func (api *API) handlePostOrderDetail(w http.ResponseWriter, r *http.Request) {
 		Amount:     params.Amount,
 		Discount:   params.Discount,
 	}
-	orderDetail, status := api.service.InsertOrderDetail(r.Context(), uid, orderDetail)
+	orderDetail, status := api.Service.InsertOrderDetail(r.Context(), uid, orderDetail)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Order Detail", status.ErrMsg)
 		return
@@ -225,7 +225,7 @@ func (api *API) handlePostOrderDetail(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) handlePatchOrderDetail(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchOrderDetail(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqOrderDetail
 	)
@@ -255,7 +255,7 @@ func (api *API) handlePatchOrderDetail(w http.ResponseWriter, r *http.Request) {
 		Amount:   params.Amount,
 		Discount: params.Discount,
 	}
-	orderDetail, status := api.service.UpdateOrderDetail(r.Context(), isAdmin, uid, orderDetail)
+	orderDetail, status := api.Service.UpdateOrderDetail(r.Context(), isAdmin, uid, orderDetail)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update OrderDetail", status.ErrMsg)
 		return
@@ -283,7 +283,7 @@ func (api *API) handlePatchOrderDetail(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleDeleteOrderDetail(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeleteOrderDetail(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
@@ -293,7 +293,7 @@ func (api *API) handleDeleteOrderDetail(w http.ResponseWriter, r *http.Request) 
 
 	uid, isAdmin := auth.IsAdmin(r)
 
-	status := api.service.DeleteOrderDetail(r.Context(), id, isAdmin, uid)
+	status := api.Service.DeleteOrderDetail(r.Context(), id, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete OrderDetail", status.ErrMsg)
 		return
