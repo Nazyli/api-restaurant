@@ -7,4 +7,4 @@ set -e
 go get ./...
 go get golang.org/x/tools/cmd/cover
 go get github.com/mattn/goveralls
-go mod download
+# go mod download
