@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectOrders(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectOrders(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -32,7 +32,7 @@ func (api *API) handleSelectOrders(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	order, status := api.service.SelectOrder(r.Context(), all, isAdmin, uid)
+	order, status := api.Service.SelectOrder(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Orders")
 		return
@@ -71,7 +71,7 @@ func (api *API) handleSelectOrders(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetOrderByInv(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetOrderByInv(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -90,7 +90,7 @@ func (api *API) handleGetOrderByInv(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	order, status := api.service.GetOrderByInv(r.Context(), inv, all, isAdmin, uid)
+	order, status := api.Service.GetOrderByInv(r.Context(), inv, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Order ", status.ErrMsg)
 		return
@@ -123,14 +123,14 @@ func (api *API) handleGetOrderByInv(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handleSelectCalculateOrder(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectCalculateOrder(w http.ResponseWriter, r *http.Request) {
 	var (
 		uid, inv string
 	)
 	uid, _ = auth.IsAdmin(r)
 	params := mux.Vars(r)
 	inv = params["inv"]
-	data, status := api.service.CalculateOrder(r.Context(), inv, uid)
+	data, status := api.Service.CalculateOrder(r.Context(), inv, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Calculate Order", status.ErrMsg)
 		return
@@ -143,9 +143,9 @@ func (api *API) handleSelectCalculateOrder(w http.ResponseWriter, r *http.Reques
 	responses.OK(w, res)
 }
 
-func (api *API) handlePostOrder(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostOrder(w http.ResponseWriter, r *http.Request) {
 	uid, _ := auth.IsAdmin(r)
-	order, status := api.service.InsertOrder(r.Context(), uid)
+	order, status := api.Service.InsertOrder(r.Context(), uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Employee", status.ErrMsg)
 		return
@@ -167,7 +167,7 @@ func (api *API) handlePostOrder(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) handlePatchPaymentOrder(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchPaymentOrder(w http.ResponseWriter, r *http.Request) {
 	var (
 		params   reqPayment
 		paramsID = mux.Vars(r)
@@ -193,7 +193,7 @@ func (api *API) handlePatchPaymentOrder(w http.ResponseWriter, r *http.Request) 
 		CustomerID: params.CustomerID,
 		Other:      params.Other,
 	}
-	order, orderDetail, status := api.service.PaymentOrder(r.Context(), inv, isAdmin, uid, order)
+	order, orderDetail, status := api.Service.PaymentOrder(r.Context(), inv, isAdmin, uid, order)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Order", status.ErrMsg)
 		return
@@ -228,11 +228,11 @@ func (api *API) handlePatchPaymentOrder(w http.ResponseWriter, r *http.Request) 
 	responses.OK(w, res)
 }
 
-func (api *API) handleDeleteOrder(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeleteOrder(w http.ResponseWriter, r *http.Request) {
 	inv := mux.Vars(r)["inv"]
 	uid, isAdmin := auth.IsAdmin(r)
 
-	status := api.service.DeleteOrder(r.Context(), inv, isAdmin, uid)
+	status := api.Service.DeleteOrder(r.Context(), inv, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete Order", status.ErrMsg)
 		return

@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectPositions(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectPositions(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		all      = false
@@ -31,7 +31,7 @@ func (api *API) handleSelectPositions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	positions, status := api.service.SelectPosition(r.Context(), all)
+	positions, status := api.Service.SelectPosition(r.Context(), all)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Positions")
 		return
@@ -54,7 +54,7 @@ func (api *API) handleSelectPositions(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetPositionById(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetPositionById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		all      = false
@@ -77,7 +77,7 @@ func (api *API) handleGetPositionById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	p, status := api.service.GetPositionByID(r.Context(), id, all)
+	p, status := api.Service.GetPositionByID(r.Context(), id, all)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Position", status.ErrMsg)
 		return
@@ -94,7 +94,7 @@ func (api *API) handleGetPositionById(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handlePostPositions(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostPositions(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqPosition
 	)
@@ -114,7 +114,7 @@ func (api *API) handlePostPositions(w http.ResponseWriter, r *http.Request) {
 	position := &entity.Position{
 		PositionName: params.PositionName,
 	}
-	p, status := api.service.InsertPosition(r.Context(), position)
+	p, status := api.Service.InsertPosition(r.Context(), position)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Position", status.ErrMsg)
 		return
@@ -131,7 +131,7 @@ func (api *API) handlePostPositions(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handlePatchPositions(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchPositions(w http.ResponseWriter, r *http.Request) {
 	var (
 		params   reqPosition
 		paramsID = mux.Vars(r)
@@ -158,7 +158,7 @@ func (api *API) handlePatchPositions(w http.ResponseWriter, r *http.Request) {
 		ID:           id,
 		PositionName: params.PositionName,
 	}
-	p, status := api.service.UpdatePosition(r.Context(), position)
+	p, status := api.Service.UpdatePosition(r.Context(), position)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Position", status.ErrMsg)
 		return
@@ -175,14 +175,14 @@ func (api *API) handlePatchPositions(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handleDeletePositions(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeletePositions(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
 		responses.ERROR(w, http.StatusBadRequest, "ID must Integer")
 		return
 	}
-	status := api.service.DeletePosition(r.Context(), &entity.Position{ID: id})
+	status := api.Service.DeletePosition(r.Context(), &entity.Position{ID: id})
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Position", status.ErrMsg)
 		return

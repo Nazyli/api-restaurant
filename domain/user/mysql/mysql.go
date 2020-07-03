@@ -264,7 +264,12 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 			:is_active
 		);
 	`
-	_, err = m.db.NamedExecContext(ctx, query, &User{
+	tx, err := m.db.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	res, err := m.db.NamedExecContext(ctx, query, &User{
 		Username:   user.Username,
 		Email:      user.Email,
 		Password:   user.Password,
@@ -279,13 +284,16 @@ func (m *MySQL) Insert(ctx context.Context, user *entity.User) (err error) {
 	if err != nil {
 		return err
 	}
-	// user.ID, err = res.LastInsertId()
-	// if err != nil {
-	// 	return err
-	// }
+	user.ID, err = res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	return err
 }
-
 func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (err error) {
 	query := `
 	UPDATE 
@@ -307,6 +315,11 @@ func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (er
 		query += " AND (created_by = :created_by OR user_hash = :user_hash)"
 
 	}
+	tx, err := m.db.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 	res, err := m.db.NamedExecContext(ctx, query, &User{
 		ID:           user.ID,
 		Username:     user.Username,
@@ -329,6 +342,10 @@ func (m *MySQL) Update(ctx context.Context, isAdmin bool, user *entity.User) (er
 	}
 	if num == 0 {
 		return sql.ErrNoRows
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	return err
 }

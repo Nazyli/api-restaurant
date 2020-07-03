@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectCustomeres(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectCustomeres(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -32,7 +32,7 @@ func (api *API) handleSelectCustomeres(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	customer, status := api.service.SelectCustomers(r.Context(), all, isAdmin, uid)
+	customer, status := api.Service.SelectCustomers(r.Context(), all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Customers")
 		return
@@ -62,7 +62,7 @@ func (api *API) handleSelectCustomeres(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetCustomerById(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetCustomerById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		uid      string
@@ -86,7 +86,7 @@ func (api *API) handleGetCustomerById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	customer, status := api.service.GetCustomerByID(r.Context(), id, all, isAdmin, uid)
+	customer, status := api.Service.GetCustomerByID(r.Context(), id, all, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Customer", status.ErrMsg)
 		return
@@ -111,7 +111,7 @@ func (api *API) handleGetCustomerById(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handlePostCustomers(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostCustomers(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqCustomer
 	)
@@ -134,7 +134,7 @@ func (api *API) handlePostCustomers(w http.ResponseWriter, r *http.Request) {
 		Email:   params.Email,
 		Addreas: params.Addreas,
 	}
-	customer, status := api.service.InsertCustomer(r.Context(), uid, customer)
+	customer, status := api.Service.InsertCustomer(r.Context(), uid, customer)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Customer", status.ErrMsg)
 		return
@@ -160,7 +160,7 @@ func (api *API) handlePostCustomers(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) handlePatchCustomer(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchCustomer(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqCustomer
 	)
@@ -190,7 +190,7 @@ func (api *API) handlePatchCustomer(w http.ResponseWriter, r *http.Request) {
 		Email:   params.Email,
 		Addreas: params.Addreas,
 	}
-	customer, status := api.service.UpdateCustomer(r.Context(), isAdmin, uid, customer)
+	customer, status := api.Service.UpdateCustomer(r.Context(), isAdmin, uid, customer)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Customer", status.ErrMsg)
 		return
@@ -215,7 +215,7 @@ func (api *API) handlePatchCustomer(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 
 }
-func (api *API) handleDeleteCustomer(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
@@ -223,7 +223,7 @@ func (api *API) handleDeleteCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid, isAdmin := auth.IsAdmin(r)
-	status := api.service.DeleteCustomer(r.Context(), id, isAdmin, uid)
+	status := api.Service.DeleteCustomer(r.Context(), id, isAdmin, uid)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Delete User", status.ErrMsg)
 		return

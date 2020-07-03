@@ -13,7 +13,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func (api *API) handleSelectCategorys(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleSelectCategorys(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		all      = false
@@ -31,7 +31,7 @@ func (api *API) handleSelectCategorys(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	categorys, status := api.service.SelectCategory(r.Context(), all)
+	categorys, status := api.Service.SelectCategory(r.Context(), all)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Categorys")
 		return
@@ -54,7 +54,7 @@ func (api *API) handleSelectCategorys(w http.ResponseWriter, r *http.Request) {
 	responses.OK(w, res)
 }
 
-func (api *API) handleGetCategoryById(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleGetCategoryById(w http.ResponseWriter, r *http.Request) {
 	var (
 		getParam = r.URL.Query()
 		all      = false
@@ -77,7 +77,7 @@ func (api *API) handleGetCategoryById(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	p, status := api.service.GetCategoryByID(r.Context(), id, all)
+	p, status := api.Service.GetCategoryByID(r.Context(), id, all)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Get Category", status.ErrMsg)
 		return
@@ -94,7 +94,7 @@ func (api *API) handleGetCategoryById(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handlePostCategorys(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePostCategorys(w http.ResponseWriter, r *http.Request) {
 	var (
 		params reqCategory
 	)
@@ -114,7 +114,7 @@ func (api *API) handlePostCategorys(w http.ResponseWriter, r *http.Request) {
 	position := &entity.Category{
 		CategoryName: params.CategoryName,
 	}
-	p, status := api.service.InsertCategory(r.Context(), position)
+	p, status := api.Service.InsertCategory(r.Context(), position)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Insert Category", status.ErrMsg)
 		return
@@ -131,7 +131,7 @@ func (api *API) handlePostCategorys(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handlePatchCategorys(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandlePatchCategorys(w http.ResponseWriter, r *http.Request) {
 	var (
 		params   reqCategory
 		paramsID = mux.Vars(r)
@@ -158,7 +158,7 @@ func (api *API) handlePatchCategorys(w http.ResponseWriter, r *http.Request) {
 		ID:           id,
 		CategoryName: params.CategoryName,
 	}
-	p, status := api.service.UpdateCategory(r.Context(), position)
+	p, status := api.Service.UpdateCategory(r.Context(), position)
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Category", status.ErrMsg)
 		return
@@ -175,14 +175,14 @@ func (api *API) handlePatchCategorys(w http.ResponseWriter, r *http.Request) {
 	}
 	responses.OK(w, res)
 }
-func (api *API) handleDeleteCategorys(w http.ResponseWriter, r *http.Request) {
+func (api *API) HandleDeleteCategorys(w http.ResponseWriter, r *http.Request) {
 	paramsID := mux.Vars(r)
 	id, err := strconv.ParseInt(paramsID["id"], 10, 64)
 	if err != nil {
 		responses.ERROR(w, http.StatusBadRequest, "ID must Integer")
 		return
 	}
-	status := api.service.DeleteCategory(r.Context(), &entity.Category{ID: id})
+	status := api.Service.DeleteCategory(r.Context(), &entity.Category{ID: id})
 	if status.Code != http.StatusOK {
 		responses.ERROR(w, status.Code, "Failed Update Category", status.ErrMsg)
 		return
